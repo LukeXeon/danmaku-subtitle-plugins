@@ -1,5 +1,7 @@
 package org.kexie.android.danmakux.format;
 
+import android.support.annotation.NonNull;
+
 public class Caption {
 
     public Style style;
@@ -16,11 +18,12 @@ public class Caption {
      */
     public String content = "";
 
+    @NonNull
     @Override
     public String toString() {
         return "Caption{" +
                 start + ".." + end +
-                ", " + (style != null ? style.iD : null) + ", " + ": " + content +
+                ", " + (style != null ? style.iD : null) + ", " + content +
                 '}';
     }
 }

@@ -2,7 +2,6 @@ package org.kexie.android.danmakux.format;
 
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -33,10 +32,10 @@ import java.util.TreeMap;
  *
  */
 public class TimedText {
-	
+
 	/*
 	 * Attributes
-	 * 
+	 *
 	 */
 	//meta info
 	public String title = "";
@@ -45,115 +44,114 @@ public class TimedText {
 	public String author = "";
 	public String fileName = "";
 	public String language = "";
-	
+
 	//list of styles (id, reference)
 	public Map<String, Style> styling;
-	
+
 	//list of captions (begin time, reference)
 	//represented by a tree map to maintain order
 	public TreeMap<Integer, Caption> captions;
-	
+
 	//to store non fatal errors produced during parsing
 	public String warnings;
-	
+
 	//**** OPTIONS *****
 	//to know whether file should be saved as .ASS or .SSA
 	public boolean useASSInsteadOfSSA = true;
 	//to delay or advance the subtitles, parsed into +/- milliseconds
 	public int offset = 0;
-	
+
 	//to know if a parsing method has been applied
 	public boolean built = false;
-	
-	
+
+
 	/**
 	 * Protected constructor so it can't be created from outside
 	 */
-	protected TimedText(){
-		
+	protected TimedText() {
+
 		styling = new HashMap<>();
 		captions = new TreeMap<>();
-		
+
 		warnings = "List of non fatal errors produced during parsing:\n\n";
-		
+
 	}
-	
-	
+
+
 	/*
 	 * Writing Methods
-	 * 
+	 *
 	 */
+
 	/**
 	 * Method to generate the .SRT file
-	 * 
+	 *
 	 * @return an array of strings where each String represents a line
 	 */
-	public String[] toSRT(){
+	public String[] toSRT() {
 		return new SRTFormat().toFile(this);
 	}
 
-	
+
 	/**
 	 * Method to generate the .ASS file
-	 * 
+	 *
 	 * @return an array of strings where each String represents a line
 	 */
-	public String[] toASS(){
+	public String[] toASS() {
 		return new ASSFormat().toFile(this);
 	}
-	
+
 	/**
 	 * Method to generate the .STL file
 	 */
-	public byte[] toSTL(){
+	public byte[] toSTL() {
 		return new STLFormat().toFile(this);
 	}
-	
+
 	/**
 	 * Method to generate the .SCC file
-	 * @return 
+	 *
+	 * @return
 	 */
-	public String[] toSCC(){
+	public String[] toSCC() {
 		return new SCCFormat().toFile(this);
 	}
-	
+
 	/**
 	 * Method to generate the .XML file
-	 * @return 
+	 *
+	 * @return
 	 */
-	public String[] toTTML(){
+	public String[] toTTML() {
 		return new TTMLFormat().toFile(this);
 	}
-	
-	/* 
-	 * PROTECTED METHODS 
-	 * 
+
+	/*
+	 * PROTECTED METHODS
+	 *
 	 */
-	
+
 	/**
 	 * This method simply checks the style list and eliminate any style not referenced by any caption
 	 * This might come useful when default styles get created and cover too much.
 	 * It require a unique iteration through all captions.
-	 * 
 	 */
-	protected void cleanUnusedStyles(){
+	protected void cleanUnusedStyles() {
 		//here all used styles will be stored
 		Hashtable<String, Style> usedStyles = new Hashtable<>();
 		//we iterate over the captions
-		Iterator<Caption> itrC = captions.values().iterator();
-		while(itrC.hasNext()){
+		for (Caption current : captions.values()) {
 			//new caption
-	    	Caption current = itrC.next();
-	    	//if it has a style
-	    	if(current.style != null){
-	    		String iD = current.style.iD;
-	    		//if we haven't saved it yet
-	    		if(!usedStyles.containsKey(iD))
-	    			usedStyles.put(iD, current.style);
-	    	}
+			//if it has a style
+			if (current.style != null) {
+				String iD = current.style.iD;
+				//if we haven't saved it yet
+				if (!usedStyles.containsKey(iD))
+					usedStyles.put(iD, current.style);
+			}
 		}
 		//we saved the used styles
 		this.styling = usedStyles;
 	}
-
 }

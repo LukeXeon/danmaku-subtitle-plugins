@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * These objects can (should) only be created through the implementations of parseFile() in the {@link org.kexie.android.danmakux.format.TimedText} interface
+ * These objects can (should) only be created through the implementations of parseFile() in the {@link TimedText} interface
  * They are an object representation of a subtitle file and contain all the captions and associated styles.
  * <br><br>
  * Copyright (c) 2012 J. David Requejo <br>
@@ -124,7 +124,7 @@ public class TimedText {
 	 * @return
 	 */
 	public String[] toTTML() {
-		return new TTMLFormat().toFile(this);
+		return new XMLFormat().toFile(this);
 	}
 
 	/*

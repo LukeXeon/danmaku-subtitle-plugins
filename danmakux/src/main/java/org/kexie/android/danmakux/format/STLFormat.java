@@ -7,7 +7,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Locale;
 
 
 /**
@@ -36,6 +35,11 @@ import java.util.Locale;
  *
  */
 public class STLFormat implements TimedTextFormat {
+	private String frameRate = "25";
+
+	public void setFrameRate(String frameRate) {
+		this.frameRate = frameRate;
+	}
 
 	public TimedText parseFile(String fileName, InputStream is) throws IOException, FatalParsingException {
 		return parseFile(fileName, is, Charset.defaultCharset());
@@ -204,7 +208,7 @@ public class STLFormat implements TimedTextFormat {
 
 	public byte[] toFile(TimedText tto) {
 
-		//first we check if the TimedTextObject had been built, otherwise...
+		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)
 			return null;
 
@@ -229,17 +233,15 @@ public class STLFormat implements TimedTextFormat {
 
 		}
 		//other info
-		DateFormat dateFormat = new SimpleDateFormat("yyMMdd", Locale.getDefault());
+		DateFormat dateFormat = new SimpleDateFormat("yyMMdd");
 		Date date = new Date();
 		String aux = dateFormat.format(date);
 		aux += aux + "00"; //revision number
-		StringBuilder aux2Builder = new StringBuilder("" + tto.captions.size());
-		while (aux2Builder.length() < 5) aux2Builder.insert(0, "0");
-		String aux2 = aux2Builder.toString();
+		String aux2 = "" + tto.captions.size();
+		while (aux2.length() < 5) aux2 = "0" + aux2;
 		aux += aux2 + aux2 + "0013216100000000";
 		//we add the time of first subtitle
-		Caption caption;
-		aux += (caption = tto.captions.get(tto.captions.firstKey())) == null ? "" : caption.start.getTime("hhmmssff/25");
+		aux += tto.captions.get(tto.captions.firstKey()).start.getTime("hhmmssff/" + frameRate);
 		aux += "11OOO";
 		extra = aux.getBytes();
 		System.arraycopy(extra, 0, gsiBlock, 224, extra.length);
@@ -267,13 +269,13 @@ public class STLFormat implements TimedTextFormat {
 			//CS
 			ttiBlock[4] = 0;
 			//TCI
-			String[] timeCode = currentC.start.getTime("h:m:s:f/25").split(":");
+			String[] timeCode = currentC.start.getTime("h:m:s:f/" + frameRate).split(":");
 			ttiBlock[5] = Byte.parseByte(timeCode[0]);
 			ttiBlock[6] = Byte.parseByte(timeCode[1]);
 			ttiBlock[7] = Byte.parseByte(timeCode[2]);
 			ttiBlock[8] = Byte.parseByte(timeCode[3]);
 			//TCO
-			timeCode = currentC.end.getTime("h:m:s:f/25").split(":");
+			timeCode = currentC.end.getTime("h:m:s:f/" + frameRate).split(":");
 			ttiBlock[9] = Byte.parseByte(timeCode[0]);
 			ttiBlock[10] = Byte.parseByte(timeCode[1]);
 			ttiBlock[11] = Byte.parseByte(timeCode[2]);
@@ -294,7 +296,7 @@ public class STLFormat implements TimedTextFormat {
 			//we clean XML, span would be implemented here
 			int pos = 16;
 			for (int i = 0; i < lines.length; i++)
-				lines[i] = lines[i].replaceAll("<.*?>", "");
+				lines[i] = lines[i].replaceAll("\\<.*?\\>", "");
 			//we code the style
 			if (currentC.style != null) {
 				Style style = currentC.style;
@@ -329,13 +331,17 @@ public class STLFormat implements TimedTextFormat {
 			for (int i = 0; i < lines.length; i++) {
 
 				char[] chars = lines[i].toCharArray();
-				for (char aChar : chars) {
+				for (int j = 0; j < chars.length; j++) {
 					//check the text is not too long
 					if (pos > 126)
 						break;
 					//check it is a supported char, else it is ignored
-					if (aChar >= 0x20 && aChar <= 0x7f)
-						ttiBlock[pos++] = (byte) aChar;
+					if (chars[j] >= 0x20 && chars[j] <= 0x7f) {
+						ttiBlock[pos++] = (byte) chars[j];
+					} else if (chars[j] == 0x0A) {
+						// line break
+						ttiBlock[pos++] = (byte) 0x8A;
+					}
 				}
 
 				if (i + 1 < lines.length)
@@ -373,7 +379,7 @@ public class STLFormat implements TimedTextFormat {
 		int diacritical_mark = 0;
 		String color = "white";
 		Style style;
-		StringBuilder text = new StringBuilder();
+		String text = "";
 
 		//we go around the field in pair of bytes to decode them
 		for (int i = 0; i < textField.length; i++) {
@@ -406,12 +412,12 @@ public class STLFormat implements TimedTextFormat {
 						case -118:
 							//line break
 							currentCaption.content += text + "<br />"; //line could be trimmed here
-							text = new StringBuilder();
+							text = "";
 							break;
 						case -113:
 							//end of caption
 							currentCaption.content += text; //line could be trimmed here
-							text = new StringBuilder();
+							text = "";
 							//we check the style
 							if (underline)
 								color += "U";
@@ -440,7 +446,7 @@ public class STLFormat implements TimedTextFormat {
 							//we save the style
 							currentCaption.style = style;
 							//and save the caption
-							int key = currentCaption.start.mseconds;
+							int key = currentCaption.start.milliseconds;
 							//in case the key is already there, we increase it by a millisecond, since no duplicates are allowed
 							while (tto.captions.containsKey(key)) key++;
 							tto.captions.put(key, currentCaption);
@@ -453,11 +459,10 @@ public class STLFormat implements TimedTextFormat {
 				} else if (textField[i] >= -64 && textField[i] <= -49) {
 					// diacritical characters
 					diacritical_mark = textField[i];
+				} else {
+					//other codes and non supported characters...
+					//corresponds to the upper half of the character code table
 				}
-
-				//other codes and non supported characters...
-				//corresponds to the upper half of the character code table
-
 			} else if (textField[i] < 32) {
 				//it is a teletext control code, only colors are supported
 				if (i + 1 < textField.length && textField[i] == textField[i + 1])
@@ -488,7 +493,7 @@ public class STLFormat implements TimedTextFormat {
 						color = "black";
 						break;
 					default:
-						//non supported
+						//non supported	
 				}
 
 			} else {
@@ -514,7 +519,7 @@ public class STLFormat implements TimedTextFormat {
 					else if ((diacritical_mark == -56) && (textField[i] == 117)) raw_string = "ü";
 					diacritical_mark = 0;
 				}
-				text.append(raw_string);
+				text += raw_string;
 			}
 
 		}
@@ -652,4 +657,5 @@ public class STLFormat implements TimedTextFormat {
 		style.underline = false;
 		tto.styling.put(style.iD, style);
 	}
+	
 }

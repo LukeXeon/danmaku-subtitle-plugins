@@ -4,15 +4,17 @@ import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 
+import com.orhanobut.logger.Logger;
+
 import org.kexie.android.danmakux.format.ASSFormat;
 import org.kexie.android.danmakux.format.Caption;
 import org.kexie.android.danmakux.format.SCCFormat;
 import org.kexie.android.danmakux.format.SRTFormat;
 import org.kexie.android.danmakux.format.STLFormat;
 import org.kexie.android.danmakux.format.Style;
-import org.kexie.android.danmakux.format.TTMLFormat;
 import org.kexie.android.danmakux.format.TimedText;
 import org.kexie.android.danmakux.format.TimedTextFormat;
+import org.kexie.android.danmakux.format.XMLFormat;
 import org.kexie.android.danmakux.utils.FileUtils;
 
 import java.io.File;
@@ -38,20 +40,25 @@ public final class DanmakuParserFactory {
     static {
         sFormats = new ArrayMap<>();
         sFormats.put("ass", ASSFormat.class);
+        sFormats.put("ssa", ASSFormat.class);
         sFormats.put("scc", SCCFormat.class);
         sFormats.put("srt", SRTFormat.class);
         sFormats.put("stl", STLFormat.class);
-        sFormats.put("ttml", TTMLFormat.class);
+        sFormats.put("xml", XMLFormat.class);
     }
 
     public static Set<String> getSupportFormats() {
         return Collections.unmodifiableSet(sFormats.keySet());
     }
 
+
     public static BaseDanmakuParser create(File file) {
-        String fileName = file.getName();
-        String ext = FileUtils.getFileExtension(file).toLowerCase();
-        Class<? extends TimedTextFormat> type = sFormats.get(ext);
+        String ext = FileUtils.getFileExtension(file);
+        return create(ext);
+    }
+
+    public static BaseDanmakuParser create(String ext) {
+        Class<? extends TimedTextFormat> type = sFormats.get(ext.toLowerCase());
         TimedTextFormat format0 = null;
         if (type != null) {
             try {
@@ -69,7 +76,7 @@ public final class DanmakuParserFactory {
                     try {
                         Danmakus danmakus = new Danmakus();
                         TimedText timedTextObject
-                                = format.parseFile(fileName, source.data());
+                                = format.parseFile("", source.data());
                         for (Map.Entry<Integer, Caption> entry
                                 : timedTextObject.captions.entrySet()) {
                             BaseDanmaku danmaku = toDanmaku(entry);
@@ -87,20 +94,29 @@ public final class DanmakuParserFactory {
 
             private BaseDanmaku
             toDanmaku(Map.Entry<Integer, Caption> entry) {
+
                 BaseDanmaku item = mContext
                         .mDanmakuFactory
                         .createDanmaku(BaseDanmaku.TYPE_FIX_BOTTOM, mContext);
                 int id = entry.getKey();
                 Caption caption = entry.getValue();
+
+                Logger.d(caption.rawContent);
+
+                Logger.d(caption.style.color + " " + caption.style.backgroundColor);
+
+
                 Style style = caption.style;
+
+
                 int textColor = Color.parseColor('#'
                         + style.color.toUpperCase());
                 int backgroundColor = Color.parseColor('#'
                         + style.backgroundColor.toUpperCase());
                 int fontSize = TextUtils.isDigitsOnly(style.fontSize)
                         ? Integer.parseInt(style.fontSize) : 20;
-                int start = caption.start.getMseconds();
-                int end = caption.end.getMseconds();
+                int start = caption.start.getMilliseconds();
+                int end = caption.end.getMilliseconds();
                 String text = caption.content;
                 item.setTime(start);
                 item.duration = new Duration(Math.max(0, end - start));

@@ -1,0 +1,72 @@
+package org.kexie.android.danmakux.simple;
+
+import android.content.res.AssetManager;
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+
+import com.orhanobut.logger.AndroidLogAdapter;
+import com.orhanobut.logger.Logger;
+
+import org.kexie.android.danmakux.converter.DanmakuParserFactory;
+
+import java.io.InputStream;
+
+import master.flame.danmaku.danmaku.loader.ILoader;
+import master.flame.danmaku.danmaku.loader.android.DanmakuLoaderFactory;
+import master.flame.danmaku.danmaku.model.android.AndroidDisplayer;
+import master.flame.danmaku.danmaku.model.android.DanmakuContext;
+import master.flame.danmaku.danmaku.parser.BaseDanmakuParser;
+import master.flame.danmaku.danmaku.parser.IDataSource;
+import master.flame.danmaku.ui.widget.DanmakuView;
+
+public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        Logger.addLogAdapter(new AndroidLogAdapter());
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action",
+                Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
+
+        DanmakuView danmakuView = findViewById(R.id.danmaku);
+
+        try {
+            AssetManager assetManager = getAssets();
+
+            InputStream inputStream = assetManager
+                    .open("standards/ASS/Aqui_no_hay_quien_viva_1.ass");
+
+            ILoader loader = DanmakuLoaderFactory.create(DanmakuLoaderFactory.TAG_BILI);
+
+            loader.load(inputStream);
+
+            IDataSource<?> dataSource = loader.getDataSource();
+
+            BaseDanmakuParser danmakuParser = DanmakuParserFactory.create("ass");
+
+            if (danmakuParser != null) {
+                danmakuParser.load(dataSource);
+                danmakuView.enableDanmakuDrawingCache(true);
+                danmakuParser.setConfig(DanmakuContext.create())
+                        .setDisplayer(new AndroidDisplayer())
+                        .getDanmakus();
+
+                danmakuView.prepare(danmakuParser, DanmakuContext.create());
+                danmakuView.start();
+                danmakuView.show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

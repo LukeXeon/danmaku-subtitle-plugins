@@ -93,10 +93,10 @@ public final class DanmakuParserFactory {
                 int id = entry.getKey();
                 Caption caption = entry.getValue();
                 Style style = caption.style;
-                int textColor = Color.parseColor(style.color
-                        .replace('&', '#'));
-                int backgroundColor = Color.parseColor(style.backgroundColor
-                        .replace('&', '#'));
+                int textColor = Color.parseColor('#'
+                        + style.color.toUpperCase());
+                int backgroundColor = Color.parseColor('#'
+                        + style.backgroundColor.toUpperCase());
                 int fontSize = TextUtils.isDigitsOnly(style.fontSize)
                         ? Integer.parseInt(style.fontSize) : 20;
                 int start = caption.start.getMseconds();

@@ -153,7 +153,7 @@ public class Style {
 			//order is reversed
 			color = new StringBuilder(color.substring(6) + color.substring(4, 6) + color.substring(2, 4) + color.substring(0, 2));
 		}
-		return color == null ? null : color.toString();
+		return color == null ? "" : color.toString();
 	}
 
 	static String defaultID() {

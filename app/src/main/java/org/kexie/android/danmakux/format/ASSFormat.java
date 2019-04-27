@@ -117,7 +117,6 @@ public class ASSFormat implements TimedTextFormat {
 							while (!line.startsWith("Format:")) {
 								lineCounter++;
 								line = br.readLine().trim();
-								;
 							}
 						}
 						// we recover the format's fields

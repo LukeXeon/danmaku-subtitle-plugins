@@ -419,9 +419,8 @@ public class TTMLFormat implements TimedTextFormat {
 			}
 
 		} else {
-			String s;
 			//it should be a named color so...
-			value = new StringBuilder((s = Style.getRGBValue("name", color)) == null ? "" : s);
+			value = new StringBuilder(Style.getRGBValue("name", color));
 			//if not recognized named color
 			if (value.length() == 0) {
 				value = new StringBuilder("ffffffff");

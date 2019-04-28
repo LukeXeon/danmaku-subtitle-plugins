@@ -42,6 +42,8 @@ public final class DanmakuParserFactory {
         sFormats.put("srt", SRTFormat.class);
         sFormats.put("stl", STLFormat.class);
         sFormats.put("xml", XMLFormat.class);
+        sFormats.put("ttml", XMLFormat.class);
+        sFormats.put("dfxp", XMLFormat.class);
     }
 
     public static Set<String> getSupportFormats() {

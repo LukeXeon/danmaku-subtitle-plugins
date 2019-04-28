@@ -1,7 +1,10 @@
 package org.kexie.android.danmakux.converter;
 
+import android.graphics.Color;
+import android.support.annotation.StringDef;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.Log;
 
 import org.kexie.android.danmakux.format.ASSFormat;
 import org.kexie.android.danmakux.format.Caption;
@@ -15,6 +18,8 @@ import org.kexie.android.danmakux.format.XMLFormat;
 import org.kexie.android.danmakux.utils.FileUtils;
 
 import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -28,22 +33,39 @@ import master.flame.danmaku.danmaku.parser.android.AndroidFileSource;
 import master.flame.danmaku.danmaku.util.DanmakuUtils;
 
 public final class DanmakuParserFactory {
+
     private DanmakuParserFactory() {
         throw new AssertionError();
     }
+
+    public static final String FORMAT_ASS = "ass";
+    public static final String FORMAT_SSA = "ssa";
+    public static final String FORMAT_SCC = "scc";
+    public static final String FORMAT_SRT = "srt";
+    public static final String FORMAT_STL = "stl";
+    public static final String FORMAT_XML = "xml";
+    public static final String FORMAT_TTML = "ttml";
+    public static final String FORMAT_DFXP = "dfxp";
+
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({FORMAT_ASS, FORMAT_SSA, FORMAT_SCC, FORMAT_SRT, FORMAT_STL, FORMAT_XML, FORMAT_TTML, FORMAT_DFXP})
+    @interface Format {
+    }
+
+    private static final String TAG = "DanmakuParserFactory";
 
     private static final Map<String, Class<? extends TimedTextFormat>> sFormats;
 
     static {
         sFormats = new ArrayMap<>();
-        sFormats.put("ass", ASSFormat.class);
-        sFormats.put("ssa", ASSFormat.class);
-        sFormats.put("scc", SCCFormat.class);
-        sFormats.put("srt", SRTFormat.class);
-        sFormats.put("stl", STLFormat.class);
-        sFormats.put("xml", XMLFormat.class);
-        sFormats.put("ttml", XMLFormat.class);
-        sFormats.put("dfxp", XMLFormat.class);
+        sFormats.put(FORMAT_ASS, ASSFormat.class);
+        sFormats.put(FORMAT_SSA, ASSFormat.class);
+        sFormats.put(FORMAT_SCC, SCCFormat.class);
+        sFormats.put(FORMAT_SRT, SRTFormat.class);
+        sFormats.put(FORMAT_STL, STLFormat.class);
+        sFormats.put(FORMAT_XML, XMLFormat.class);
+        sFormats.put(FORMAT_TTML, XMLFormat.class);
+        sFormats.put(FORMAT_DFXP, XMLFormat.class);
     }
 
     public static Set<String> getSupportFormats() {
@@ -56,7 +78,7 @@ public final class DanmakuParserFactory {
         return create(ext);
     }
 
-    public static BaseDanmakuParser create(String ext) {
+    public static BaseDanmakuParser create(@Format String ext) {
         Class<? extends TimedTextFormat> type = sFormats.get(ext.toLowerCase());
         TimedTextFormat format0 = null;
         if (type != null) {
@@ -79,8 +101,11 @@ public final class DanmakuParserFactory {
                         for (Map.Entry<Integer, Caption> entry
                                 : timedTextObject.captions.entrySet()) {
                             BaseDanmaku danmaku = toDanmaku(entry);
-                            danmakus.addItem(danmaku);
+                            if (danmaku != null) {
+                                danmakus.addItem(danmaku);
+                            }
                         }
+                        Log.d(TAG, "parse: ");
                         return danmakus;
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -93,19 +118,30 @@ public final class DanmakuParserFactory {
 
             private BaseDanmaku
             toDanmaku(Map.Entry<Integer, Caption> entry) {
-
+                Caption caption = entry.getValue();
+                if (TextUtils.isEmpty(caption.content)) {
+                    return null;
+                }
                 BaseDanmaku item = mContext
                         .mDanmakuFactory
                         .createDanmaku(BaseDanmaku.TYPE_FIX_BOTTOM, mContext);
                 int id = entry.getKey();
-                Caption caption = entry.getValue();
                 Style style = caption.style;
-                int textColor = parseColor(style.color);
-                int backgroundColor = parseColor(style.backgroundColor);
-                int fontSize = TextUtils.isDigitsOnly(style.fontSize)
+                int textColor = style != null
+                        && style.color != null
+                        ? parseColor(style.color)
+                        : Color.WHITE;
+                int backgroundColor = style != null
+                        && style.backgroundColor != null
+                        ? parseColor(style.backgroundColor)
+                        : Color.BLACK;
+                int fontSize = style != null
+                        && style.fontSize != null
+                        && TextUtils.isDigitsOnly(style.fontSize)
                         ? Integer.parseInt(style.fontSize) : 20;
-                int start = caption.start.getMilliseconds();
-                int end = caption.end.getMilliseconds();
+
+                int start = caption.start.milliseconds;
+                int end = caption.end.milliseconds;
                 String text = caption.content;
                 item.setTime(start);
                 item.duration = new Duration(Math.max(0, end - start));

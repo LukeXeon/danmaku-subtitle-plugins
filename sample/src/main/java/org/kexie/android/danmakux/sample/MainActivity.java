@@ -43,8 +43,10 @@ public class MainActivity extends AppCompatActivity {
         try {
             AssetManager assetManager = getAssets();
 
+            Logger.d(assetManager.list("standards"));
+
             InputStream inputStream = assetManager
-                    .open("standards/ASS/Aqui_no_hay_quien_viva_1.ass");
+                    .open("standards/SRT/Avengers.2012.Eng.Subs.srt");
 
             ILoader loader = DanmakuLoaderFactory.create(DanmakuLoaderFactory.TAG_BILI);
 
@@ -52,7 +54,8 @@ public class MainActivity extends AppCompatActivity {
 
             IDataSource<?> dataSource = loader.getDataSource();
 
-            BaseDanmakuParser danmakuParser = DanmakuParserFactory.create("ass");
+            BaseDanmakuParser danmakuParser = DanmakuParserFactory
+                    .create(DanmakuParserFactory.FORMAT_SRT);
 
             if (danmakuParser != null) {
                 danmakuParser.load(dataSource);

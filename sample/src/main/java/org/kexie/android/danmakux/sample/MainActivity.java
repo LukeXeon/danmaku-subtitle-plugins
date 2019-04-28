@@ -10,7 +10,8 @@ import android.support.v7.widget.Toolbar;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
-import org.kexie.android.danmakux.subtitle.converter.DanmakuParserFactory;
+import org.kexie.android.danmakux.subtitle.converter.SubtitleParserFactory;
+import org.kexie.android.danmakux.subtitle.format.Format;
 
 import java.io.InputStream;
 
@@ -54,20 +55,20 @@ public class MainActivity extends AppCompatActivity {
 
             IDataSource<?> dataSource = loader.getDataSource();
 
-            BaseDanmakuParser danmakuParser = DanmakuParserFactory
-                    .create(DanmakuParserFactory.FORMAT_SRT);
+            Format format = Format.forName(Format.FORMAT_ASS);
 
-            if (danmakuParser != null) {
-                danmakuParser.load(dataSource);
-                danmakuView.enableDanmakuDrawingCache(true);
-                danmakuParser.setConfig(DanmakuContext.create())
-                        .setDisplayer(new AndroidDisplayer())
-                        .getDanmakus();
+            BaseDanmakuParser danmakuParser = SubtitleParserFactory
+                    .create(format);
 
-                danmakuView.prepare(danmakuParser, DanmakuContext.create());
-                danmakuView.start();
-                danmakuView.show();
-            }
+            danmakuParser.load(dataSource);
+            danmakuView.enableDanmakuDrawingCache(true);
+            danmakuParser.setConfig(DanmakuContext.create())
+                    .setDisplayer(new AndroidDisplayer())
+                    .getDanmakus();
+
+            danmakuView.prepare(danmakuParser, DanmakuContext.create());
+            danmakuView.start();
+            danmakuView.show();
         } catch (Exception e) {
             e.printStackTrace();
         }

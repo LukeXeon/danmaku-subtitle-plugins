@@ -35,17 +35,18 @@ import java.util.Iterator;
  * @author J. David Requejo
  *
  */
-public class SRTFormat implements SubtitleFormat {
+
+public class SRTFormat extends Format {
 
 
-	public Subtitle parseFile(String fileName, InputStream is) throws IOException {
-		return parseFile(fileName, is, Charset.defaultCharset());
+	public Subtitle parse(String fileName, InputStream is) throws IOException {
+		return parse(fileName, is, Charset.defaultCharset());
 	}
 
-	public Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException {
+	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws IOException {
 
 		Subtitle tto = new Subtitle();
-		Caption caption = new Caption();
+		Section section = new Section();
 		int captionNumber = 1;
 		boolean allGood;
 
@@ -85,11 +86,11 @@ public class SRTFormat implements SubtitleFormat {
 							lineCounter++;
 							line = br.readLine().trim();
 							String start = line.substring(0, 12);
-							String end = line.substring(line.length() - 12, line.length());
+							String end = line.substring(line.length() - 12);
 							Time time = new Time("hh:mm:ss,ms", start);
-							caption.start = time;
+							section.start = time;
 							time = new Time("hh:mm:ss,ms", end);
-							caption.end = time;
+							section.end = time;
 						} catch (Exception e) {
 							tto.warnings += "incorrect time format at line " + lineCounter;
 							allGood = false;
@@ -105,21 +106,21 @@ public class SRTFormat implements SubtitleFormat {
 							line = br.readLine().trim();
 							lineCounter++;
 						}
-						caption.content = text.toString();
-						int key = caption.start.milliseconds;
+						section.content = text.toString();
+						int key = section.start.milliseconds;
 						//in case the key is already there, we increase it by a millisecond, since no duplicates are allowed
 						while (tto.captions.containsKey(key)) key++;
-						if (key != caption.start.milliseconds)
+						if (key != section.start.milliseconds)
 							tto.warnings += "caption with same start time found...\n\n";
 						//we add the caption.
-						tto.captions.put(key, caption);
+						tto.captions.put(key, section);
 					}
 					//we go to next blank
 					while (!line.isEmpty()) {
 						line = br.readLine().trim();
 						lineCounter++;
 					}
-					caption = new Caption();
+					section = new Section();
 				}
 				line = br.readLine();
 			}
@@ -147,13 +148,13 @@ public class SRTFormat implements SubtitleFormat {
 		//the minimum size of the file is 4*number of captions, so we'll take some extra space.
 		ArrayList<String> file = new ArrayList<>(5 * tto.captions.size());
 		//we iterate over our captions collection, they are ordered since they come from a TreeMap
-		Collection<Caption> c = tto.captions.values();
-		Iterator<Caption> itr = c.iterator();
+		Collection<Section> c = tto.captions.values();
+		Iterator<Section> itr = c.iterator();
 		int captionNumber = 1;
 
 		while (itr.hasNext()) {
 			//new caption
-			Caption current = itr.next();
+			Section current = itr.next();
 			//number is written
 			file.add(index++, Integer.toString(captionNumber++));
 			//we check for offset value:
@@ -190,7 +191,7 @@ public class SRTFormat implements SubtitleFormat {
 	/**
 	 * This method cleans caption.content of XML and parses line breaks.
 	 */
-	private String[] cleanTextForSRT(Caption current) {
+	private String[] cleanTextForSRT(Section current) {
 		String[] lines;
 		String text = current.content;
 		//add line breaks

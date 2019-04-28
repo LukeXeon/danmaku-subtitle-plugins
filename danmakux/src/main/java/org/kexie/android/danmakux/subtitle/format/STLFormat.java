@@ -35,18 +35,19 @@ import java.util.Locale;
  * @author J. David Requejo
  *
  */
-public class STLFormat implements SubtitleFormat {
+
+public class STLFormat extends Format {
 	private String frameRate = "25";
 
-	public void setFrameRate(String frameRate) {
-		this.frameRate = frameRate;
+	public void setFrameRate(float frameRate) {
+		this.frameRate = Float.toString(frameRate);
 	}
 
-	public Subtitle parseFile(String fileName, InputStream is) throws IOException, FatalParsingException {
-		return parseFile(fileName, is, Charset.defaultCharset());
+	public Subtitle parse(String fileName, InputStream is) throws IOException, FatalParsingException {
+		return parse(fileName, is, Charset.defaultCharset());
 	}
 
-	public Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
+	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws FatalParsingException {
 
 		Subtitle tto = new Subtitle();
 		tto.fileName = fileName;
@@ -124,7 +125,7 @@ public class STLFormat implements SubtitleFormat {
 
 			int subtitleNumber = 0;
 			boolean additionalText = false;
-			Caption currentCaption = null;
+			Section currentSection = null;
 			//the TTI blocks are read
 			for (int i = 0; i < numberOfTTIBlocks; i++) {
 				//the TTI block is loaded
@@ -137,7 +138,7 @@ public class STLFormat implements SubtitleFormat {
 
 				//if we have additional text pending, we do not create a new caption
 				if (!additionalText)
-					currentCaption = new Caption();
+					currentSection = new Section();
 
 				//SGN : Subtitle group number 0
 				//SN : Subtitle Number 1..2
@@ -175,11 +176,11 @@ public class STLFormat implements SubtitleFormat {
 
 					if (additionalText)
 						//if it is just additional text for the caption
-						parseTextForSTL(currentCaption, textField, justification, tto);
+						parseTextForSTL(currentSection, textField, justification, tto);
 					else {
-						currentCaption.start = new Time("h:m:s:f/fps", startTime + "/" + fps);
-						currentCaption.end = new Time("h:m:s:f/fps", endTime + "/" + fps);
-						parseTextForSTL(currentCaption, textField, justification, tto);
+						currentSection.start = new Time("h:m:s:f/fps", startTime + "/" + fps);
+						currentSection.end = new Time("h:m:s:f/fps", endTime + "/" + fps);
+						parseTextForSTL(currentSection, textField, justification, tto);
 					}
 				}
 				//we increase the subtitle number
@@ -213,7 +214,7 @@ public class STLFormat implements SubtitleFormat {
 		if (!tto.built)
 			return null;
 
-		Caption currentC;
+		Section currentC;
 
 		byte[] gsiBlock = new byte[1024];
 		byte[] ttiBlock = new byte[128];
@@ -239,12 +240,13 @@ public class STLFormat implements SubtitleFormat {
 		String aux = dateFormat.format(date);
 		aux += aux + "00"; //revision number
 		StringBuilder aux2Builder = new StringBuilder("" + tto.captions.size());
-		while (aux2Builder.length() < 5) aux2Builder.insert(0, "0");
-		String aux2 = aux2Builder
+		while (aux2Builder.length() < 5) {
+			aux2Builder.insert(0, "0");
+		}
+		aux += aux2Builder
 				.append(aux2Builder)
 				.append(aux2Builder)
-				.append("0013216100000000")
-				.toString();
+				.append("0013216100000000");
 		//we add the time of first subtitle
 		aux += tto.captions.firstEntry().getValue().start.getTime("hhmmssff/" + frameRate);
 		aux += "11OOO";
@@ -260,7 +262,7 @@ public class STLFormat implements SubtitleFormat {
 		System.arraycopy(gsiBlock, 0, file, 0, gsiBlock.length);
 
 		//we iterate over the captions to create the TTI blocks
-		Iterator<Caption> itrC = tto.captions.values().iterator();
+		Iterator<Section> itrC = tto.captions.values().iterator();
 		int subtitleNumber = 0;
 		while (itrC.hasNext()) {
 			currentC = itrC.next();
@@ -373,11 +375,11 @@ public class STLFormat implements SubtitleFormat {
 	/**
 	 * This method parses the text field taking into account STL control codes
 	 *
-	 * @param currentCaption
+	 * @param currentSection
 	 * @param textField
 	 * @param justification
 	 */
-	private void parseTextForSTL(Caption currentCaption, byte[] textField, int justification, Subtitle tto) {
+	private void parseTextForSTL(Section currentSection, byte[] textField, int justification, Subtitle tto) {
 
 		boolean italics = false;
 		boolean underline = false;
@@ -416,12 +418,12 @@ public class STLFormat implements SubtitleFormat {
 							break;
 						case -118:
 							//line break
-							currentCaption.content += text + "<br />"; //line could be trimmed here
+							currentSection.content += text + "<br />"; //line could be trimmed here
 							text = new StringBuilder();
 							break;
 						case -113:
 							//end of caption
-							currentCaption.content += text; //line could be trimmed here
+							currentSection.content += text; //line could be trimmed here
 							text = new StringBuilder();
 							//we check the style
 							if (underline)
@@ -449,12 +451,12 @@ public class STLFormat implements SubtitleFormat {
 							}
 
 							//we save the style
-							currentCaption.style = style;
+							currentSection.style = style;
 							//and save the caption
-							int key = currentCaption.start.milliseconds;
+							int key = currentSection.start.milliseconds;
 							//in case the key is already there, we increase it by a millisecond, since no duplicates are allowed
 							while (tto.captions.containsKey(key)) key++;
-							tto.captions.put(key, currentCaption);
+							tto.captions.put(key, currentSection);
 							//we end the loop
 							i = textField.length;
 							break;

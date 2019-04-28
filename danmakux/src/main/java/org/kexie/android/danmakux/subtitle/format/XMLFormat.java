@@ -41,18 +41,19 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * @author J. David Requejo
  *
  */
-public class XMLFormat implements SubtitleFormat {
+
+public class XMLFormat extends Format {
 
 	static {
 		System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
 	}
 
 
-	public Subtitle parseFile(String fileName, InputStream is) throws IOException, FatalParsingException {
-		return parseFile(fileName, is, Charset.defaultCharset());
+	public Subtitle parse(String fileName, InputStream is) throws IOException, FatalParsingException {
+		return parse(fileName, is, Charset.defaultCharset());
 	}
 
-	public Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
+	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
 
 		Subtitle tto = new Subtitle();
 		tto.fileName = fileName;
@@ -68,7 +69,7 @@ public class XMLFormat implements SubtitleFormat {
 			Node node = doc.getElementsByTagName("ttm:title").item(0);
 			if (node != null) tto.title = node.getTextContent();
 			node = doc.getElementsByTagName("ttm:copyright").item(0);
-			if (node != null) tto.copyrigth = node.getTextContent();
+			if (node != null) tto.copyright = node.getTextContent();
 			node = doc.getElementsByTagName("ttm:desc").item(0);
 			if (node != null) tto.description = node.getTextContent();
 
@@ -182,8 +183,8 @@ public class XMLFormat implements SubtitleFormat {
 
 			//we parse the captions
 			for (int i = 0; i < captionsN.getLength(); i++) {
-				Caption caption = new Caption();
-				caption.content = "";
+				Section section = new Section();
+				section.content = "";
 				boolean validCaption = true;
 				node = captionsN.item(i);
 
@@ -191,19 +192,19 @@ public class XMLFormat implements SubtitleFormat {
 				//we get the begin time
 				Node currentAtr = attr.getNamedItem("begin");
 				//if no begin is present, 0 is assumed
-				caption.start = new Time("", "");
-				caption.end = new Time("", "");
+				section.start = new Time("", "");
+				section.end = new Time("", "");
 				if (currentAtr != null)
-					caption.start.milliseconds = parseTimeExpression(currentAtr.getNodeValue(), tto, doc);
+					section.start.milliseconds = parseTimeExpression(currentAtr.getNodeValue(), tto, doc);
 
 				//we get the end time, if present, duration is ignored, otherwise end is calculated from duration
 				currentAtr = attr.getNamedItem("end");
 				if (currentAtr != null)
-					caption.end.milliseconds = parseTimeExpression(currentAtr.getNodeValue(), tto, doc);
+					section.end.milliseconds = parseTimeExpression(currentAtr.getNodeValue(), tto, doc);
 				else {
 					currentAtr = attr.getNamedItem("dur");
 					if (currentAtr != null)
-						caption.end.milliseconds = caption.start.milliseconds + parseTimeExpression(currentAtr.getNodeValue(), tto, doc);
+						section.end.milliseconds = section.start.milliseconds + parseTimeExpression(currentAtr.getNodeValue(), tto, doc);
 					else
 						//no end or duration, invalid format, caption is discarded
 						validCaption = false;
@@ -214,7 +215,7 @@ public class XMLFormat implements SubtitleFormat {
 				if (currentAtr != null) {
 					Style style = tto.styling.get(currentAtr.getNodeValue());
 					if (style != null)
-						caption.style = style;
+						section.style = style;
 					else
 						//unrecognized style
 						tto.warnings += "unrecoginzed style referenced: " + currentAtr.getNodeValue() + "\n\n";
@@ -224,21 +225,21 @@ public class XMLFormat implements SubtitleFormat {
 				NodeList textN = node.getChildNodes();
 				for (int j = 0; j < textN.getLength(); j++) {
 					if (textN.item(j).getNodeName().equals("#text"))
-						caption.content += textN.item(j).getTextContent().trim();
+						section.content += textN.item(j).getTextContent().trim();
 					else if (textN.item(j).getNodeName().equals("br"))
-						caption.content += "<br />";
+						section.content += "<br />";
 
 				}
 				//is this check worth it?
-				if (caption.content.replaceAll("\\<br /\\>", "").trim().isEmpty())
+				if (section.content.replaceAll("\\<br /\\>", "").trim().isEmpty())
 					validCaption = false;
 
 				//and save the caption
 				if (validCaption) {
-					int key = caption.start.milliseconds;
+					int key = section.start.milliseconds;
 					//in case the key is already there, we increase it by a millisecond, since no duplicates are allowed
 					while (tto.captions.containsKey(key)) key++;
-					tto.captions.put(key, caption);
+					tto.captions.put(key, section);
 				}
 
 			}
@@ -282,8 +283,8 @@ public class XMLFormat implements SubtitleFormat {
 		else title = tto.title;
 		file.add(index++, "\t\t\t<ttm:title>" + title + "</ttm:title>");
 		//Copyright
-		if (tto.copyrigth != null && !tto.copyrigth.isEmpty())
-			file.add(index++, "\t\t\t<ttm:copyright>" + tto.copyrigth + "</ttm:copyright>");
+		if (tto.copyright != null && !tto.copyright.isEmpty())
+			file.add(index++, "\t\t\t<ttm:copyright>" + tto.copyright + "</ttm:copyright>");
 		//additional info
 		String desc = "Converted by the Online Subtitle Converter developed by J. David Requejo\n";
 		if (tto.author != null && !tto.author.isEmpty())
@@ -339,14 +340,14 @@ public class XMLFormat implements SubtitleFormat {
 		file.add(index++, "\t\t<div>");
 
 		//Next we iterate over the captions
-		for (Caption caption : tto.captions.values()) {
+		for (Section section : tto.captions.values()) {
 			//we open the subtitle line
-			line = "\t\t\t<p begin=\"" + caption.start.getTime("hh:mm:ss,ms").replace(',', '.') + "\"";
-			line += " end=\"" + caption.end.getTime("hh:mm:ss,ms").replace(',', '.') + "\"";
-			if (caption.style != null)
-				line += " style=\"" + caption.style.iD + "\"";
+			line = "\t\t\t<p begin=\"" + section.start.getTime("hh:mm:ss,ms").replace(',', '.') + "\"";
+			line += " end=\"" + section.end.getTime("hh:mm:ss,ms").replace(',', '.') + "\"";
+			if (section.style != null)
+				line += " style=\"" + section.style.iD + "\"";
 			//attributes are done being inserted, if region was implemented it should be added before this.
-			line += " >" + caption.content + "</p>\n";
+			line += " >" + section.content + "</p>\n";
 			//we write the line
 			file.add(index++, line);
 		}

@@ -1,5 +1,7 @@
 package org.kexie.android.danmakux.subtitle.format;
 
+import android.support.annotation.RestrictTo;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,16 +35,17 @@ import java.util.Iterator;
  * @author J. David Requejo
  *
  */
-public class SCCFormat implements SubtitleFormat {
 
-	public Subtitle parseFile(String fileName, InputStream is) throws IOException, FatalParsingException {
-		return parseFile(fileName, is, Charset.defaultCharset());
+public class SCCFormat extends Format {
+
+	public Subtitle parse(String fileName, InputStream is) throws IOException, FatalParsingException {
+		return parse(fileName, is, Charset.defaultCharset());
 	}
 
-	public Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
+	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
 
 		Subtitle tto = new Subtitle();
-		Caption newCaption = null;
+		Section newSection = null;
 
 		//variables to represent a decoder
 		String textBuffer = "";
@@ -112,9 +115,9 @@ public class SCCFormat implements SubtitleFormat {
 										textBuffer += decodeChar(c2);
 									} else {
 										//we decode the byte and add it to the text screen
-										newCaption.content += decodeChar(c1);
+										newSection.content += decodeChar(c1);
 										//we decode the second char and add it, this one can be empty.
-										newCaption.content += decodeChar(c2);
+										newSection.content += decodeChar(c2);
 									}
 								}
 
@@ -153,41 +156,41 @@ public class SCCFormat implements SubtitleFormat {
 													//clear text buffer
 													textBuffer = "";
 													//clear screen text
-													if (newCaption != null) {
-														newCaption.end = currentTime;
+													if (newSection != null) {
+														newSection.end = currentTime;
 														String style = "";
 														style += color;
 														if (underlined) style += "U";
 														if (italics) style += "I";
-														newCaption.style = tto.styling.get(style);
-														tto.captions.put(newCaption.start.milliseconds, newCaption);
+														newSection.style = tto.styling.get(style);
+														tto.captions.put(newSection.start.milliseconds, newSection);
 													}
 													//new caption starts with roll up style
-													newCaption = new Caption();
-													newCaption.start = currentTime;
+													newSection = new Section();
+													newSection.start = currentTime;
 													//all characters and codes will be applied directly to the screen
 													isBuffered = false;
 													break;
 												case 9:
 													//Resume Direct Captioning: start paint-on captions
 													isBuffered = false;
-													newCaption = new Caption();
-													newCaption.start = currentTime;
+													newSection = new Section();
+													newSection.start = currentTime;
 													break;
 												case 12:
 													//Erase Displayed Memory: clear screen text
-													if (newCaption != null) {
-														newCaption.end = currentTime;
-														if (newCaption.start != null) {
+													if (newSection != null) {
+														newSection.end = currentTime;
+														if (newSection.start != null) {
 															//we save the caption
-															int key = newCaption.start.milliseconds;
+															int key = newSection.start.milliseconds;
 															//in case the key is already there, we increase it by a millisecond, since no duplicates are allowed
 															while (tto.captions.containsKey(key))
 																key++;
 															//we save the caption
-															tto.captions.put(newCaption.start.milliseconds, newCaption);
+															tto.captions.put(newSection.start.milliseconds, newSection);
 															//and reset the caption builder
-															newCaption = new Caption();
+															newSection = new Section();
 														}
 													}
 													break;
@@ -197,9 +200,9 @@ public class SCCFormat implements SubtitleFormat {
 													break;
 												case 15:
 													//End of caption: Swap off-screen buffer with caption screen.
-													newCaption = new Caption();
-													newCaption.start = currentTime;
-													newCaption.content += textBuffer;
+													newSection = new Section();
+													newSection.start = currentTime;
+													newSection.content += textBuffer;
 													break;
 												default:
 													//unsupported or unrecognized command code
@@ -218,8 +221,8 @@ public class SCCFormat implements SubtitleFormat {
 											//it is a new line
 											if (isBuffered && !textBuffer.isEmpty())
 												textBuffer += "<br />";
-											if (!isBuffered && !newCaption.content.isEmpty())
-												newCaption.content += "<br />";
+											if (!isBuffered && !newSection.content.isEmpty())
+												newSection.content += "<br />";
 											if ((word & 0x0001) == 1)
 												//it is underlined
 												underlined = true;
@@ -318,7 +321,7 @@ public class SCCFormat implements SubtitleFormat {
 												textBuffer += decodeSpecialChar(word);
 											else
 												//we decode the special char and add it to the text
-												newCaption.content += decodeSpecialChar(word);
+												newSection.content += decodeSpecialChar(word);
 										} else if ((word & 0x1660) == 0x1220) {
 											//it is an extended character code
 											word &= 0x011f;
@@ -328,7 +331,7 @@ public class SCCFormat implements SubtitleFormat {
 												decodeXtChar(textBuffer, word);
 											else
 												//we decode the extended char and add it to the text
-												decodeXtChar(newCaption.content, word);
+												decodeXtChar(newSection.content, word);
 
 										} else {
 											//non recognized code
@@ -349,18 +352,18 @@ public class SCCFormat implements SubtitleFormat {
 
 				}
 
-				if (newCaption != null) {
+				if (newSection != null) {
 					//we save any last shown caption
-					newCaption.end = new Time("h:m:s:f/fps", "99:59:59:29/29.97");
+					newSection.end = new Time("h:m:s:f/fps", "99:59:59:29/29.97");
 					;
 				}
-				if (newCaption.start != null) {
+				if (newSection.start != null) {
 					//we save the caption
-					int key = newCaption.start.milliseconds;
+					int key = newSection.start.milliseconds;
 					//in case the key is already there, we increase it by a millisecond, since no duplicates are allowed
 					while (tto.captions.containsKey(key)) key++;
 					//we save the caption
-					tto.captions.put(newCaption.start.milliseconds, newCaption);
+					tto.captions.put(newSection.start.milliseconds, newSection);
 				}
 				tto.cleanUnusedStyles();
 			}
@@ -394,13 +397,13 @@ public class SCCFormat implements SubtitleFormat {
 		//line is to store the information to add to the file
 		String line;
 		//to store information about the captions
-		Caption oldC;
-		Caption newC = new Caption();
+		Section oldC;
+		Section newC = new Section();
 		newC.content = "";
 		newC.end = new Time("h:mm:ss.cs", "0:00:00.00");
 
 		//Next we iterate over the captions
-		Iterator<Caption> itrC = tto.captions.values().iterator();
+		Iterator<Section> itrC = tto.captions.values().iterator();
 		while (itrC.hasNext()) {
 			line = "";
 			oldC = newC;
@@ -459,7 +462,7 @@ public class SCCFormat implements SubtitleFormat {
 	/**
 	 * INCOMPLETE METHOD: does not tab to correct position or applies styles
 	 */
-	private String codeText(Caption newC) {
+	private String codeText(Section newC) {
 		String toReturn = "";
 
 		String[] lines = newC.content.split("\\<br[ ]*/\\>");

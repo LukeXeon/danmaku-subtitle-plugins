@@ -2,7 +2,7 @@ package org.kexie.android.danmakux.subtitle.format;
 
 import android.support.annotation.NonNull;
 
-public class Caption {
+public class Section {
 
     public Style style;
 

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * These objects can (should) only be created through the implementations of parseFile() in the {@link Subtitle} interface
+ * These objects can (should) only be created through the implementations of parse() in the {@link Subtitle} interface
  * They are an object representation of a subtitle file and contain all the captions and associated styles.
  * <br><br>
  * Copyright (c) 2012 J. David Requejo <br>
@@ -31,6 +31,7 @@ import java.util.TreeMap;
  * @author J. David Requejo
  *
  */
+
 public class Subtitle {
 
 	/*
@@ -40,7 +41,7 @@ public class Subtitle {
 	//meta info
 	public String title = "";
 	public String description = "";
-	public String copyrigth = "";
+	public String copyright = "";
 	public String author = "";
 	public String fileName = "";
 	public String language = "";
@@ -50,7 +51,7 @@ public class Subtitle {
 
 	//list of captions (begin time, reference)
 	//represented by a tree map to maintain order
-	public TreeMap<Integer, Caption> captions;
+	public TreeMap<Integer, Section> captions;
 
 	//to store non fatal errors produced during parsing
 	public String warnings;
@@ -141,7 +142,7 @@ public class Subtitle {
 		//here all used styles will be stored
 		Hashtable<String, Style> usedStyles = new Hashtable<>();
 		//we iterate over the captions
-		for (Caption current : captions.values()) {
+		for (Section current : captions.values()) {
 			//new caption
 			//if it has a style
 			if (current.style != null) {

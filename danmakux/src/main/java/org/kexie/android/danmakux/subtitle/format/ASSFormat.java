@@ -33,18 +33,18 @@ import java.util.ArrayList;
  * @author J. David REQUEJO
  *
  */
-public class ASSFormat implements SubtitleFormat {
+public class ASSFormat extends Format {
 
-	public Subtitle parseFile(String fileName, InputStream is) throws IOException {
-		return parseFile(fileName, is, Charset.defaultCharset());
+	public Subtitle parse(String fileName, InputStream is) throws IOException {
+		return parse(fileName, is, Charset.defaultCharset());
 	}
 
-	public Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException {
+	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws IOException {
 
 		Subtitle tto = new Subtitle();
 		tto.fileName = fileName;
 
-		Caption caption;
+		Section section;
 		Style style;
 
 		//for the clock timer
@@ -163,12 +163,12 @@ public class ASSFormat implements SubtitleFormat {
 							//WARNING: all other events are ignored.
 							if (line.startsWith("Dialogue:")) {
 								//we parse the dialogue
-								caption = parseDialogueForASS(line.split(":", 2)[1].trim().split(",", dialogueFormat.length), dialogueFormat, timer, tto);
+								section = parseDialogueForASS(line.split(":", 2)[1].trim().split(",", dialogueFormat.length), dialogueFormat, timer, tto);
 								//and save the caption
-								int key = caption.start.milliseconds;
+								int key = section.start.milliseconds;
 								//in case the key is already there, we increase it by a millisecond, since no duplicates are allowed
 								while (tto.captions.containsKey(key)) key++;
-								tto.captions.put(key, caption);
+								tto.captions.put(key, section);
 							}
 							//next line
 							lineCounter++;
@@ -230,8 +230,8 @@ public class ASSFormat implements SubtitleFormat {
 		else author += tto.author;
 		file.add(index++, author);
 		//additional info
-		if (tto.copyrigth != null && !tto.copyrigth.isEmpty())
-			file.add(index++, "; " + tto.copyrigth);
+		if (tto.copyright != null && !tto.copyright.isEmpty())
+			file.add(index++, "; " + tto.copyright);
 		if (tto.description != null && !tto.description.isEmpty())
 			file.add(index++, "; " + tto.description);
 		file.add(index++, "; Converted by the Online Subtitle Converter developed by J. David Requejo");
@@ -289,34 +289,34 @@ public class ASSFormat implements SubtitleFormat {
 		else
 			file.add(index++, "Format: Marked, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text");
 		//Next we iterate over the captions
-		for (Caption caption : tto.captions.values()) {
+		for (Section section : tto.captions.values()) {
 			//for each caption
 			String line = "Dialogue: 0,";
 			//new caption
 			//offset is applied
 			if (tto.offset != 0) {
-				caption.start.milliseconds += tto.offset;
-				caption.end.milliseconds += tto.offset;
+				section.start.milliseconds += tto.offset;
+				section.end.milliseconds += tto.offset;
 			}
 			//start time
-			line += caption.start.getTime("h:mm:ss.cs") + ",";
+			line += section.start.getTime("h:mm:ss.cs") + ",";
 			//end time
-			line += caption.end.getTime("h:mm:ss.cs") + ",";
+			line += section.end.getTime("h:mm:ss.cs") + ",";
 			//offset is undone
 			if (tto.offset != 0) {
-				caption.start.milliseconds -= tto.offset;
-				caption.end.milliseconds -= tto.offset;
+				section.start.milliseconds -= tto.offset;
+				section.end.milliseconds -= tto.offset;
 			}
 			//style
-			if (caption.style != null)
-				line += caption.style.iD;
+			if (section.style != null)
+				line += section.style.iD;
 			else
 				line += "Default";
 			//default margins are used, no name or effect is recognized
 			line += ",,0000,0000,0000,,";
 
 			//we add the caption text with \N as line breaks  and clean of XML
-			line += caption.content.replaceAll("\\<br[ ]*/\\>", "\\\\N").replaceAll("\\<.*?\\>", "");
+			line += section.content.replaceAll("\\<br[ ]*/\\>", "\\\\N").replaceAll("\\<.*?\\>", "");
 			//and we add the caption line
 			file.add(index++, line);
 		}
@@ -478,9 +478,9 @@ public class ASSFormat implements SubtitleFormat {
 	 * @param timer          % to speed or slow the clock, above 100% span of the subtitles is reduced.
 	 * @return a new Caption object
 	 */
-	private Caption parseDialogueForASS(String[] line, String[] dialogueFormat, float timer, Subtitle tto) {
+	private Section parseDialogueForASS(String[] line, String[] dialogueFormat, float timer, Subtitle tto) {
 
-		Caption newCaption = new Caption();
+		Section newSection = new Section();
 
 		for (int i = 0; i < dialogueFormat.length; i++) {
 			String trimmedDialogueFormat = dialogueFormat[i].trim();
@@ -489,30 +489,30 @@ public class ASSFormat implements SubtitleFormat {
 				//we save the style
 				Style s = tto.styling.get(line[i].trim());
 				if (s != null)
-					newCaption.style = s;
+					newSection.style = s;
 				else
 					tto.warnings += "undefined style: " + line[i].trim() + "\n\n";
 			} else if (trimmedDialogueFormat.equalsIgnoreCase("Start")) {
 				//we save the starting time
-				newCaption.start = new Time("h:mm:ss.cs", line[i].trim());
+				newSection.start = new Time("h:mm:ss.cs", line[i].trim());
 			} else if (trimmedDialogueFormat.equalsIgnoreCase("End")) {
 				//we save the starting time
-				newCaption.end = new Time("h:mm:ss.cs", line[i].trim());
+				newSection.end = new Time("h:mm:ss.cs", line[i].trim());
 			} else if (trimmedDialogueFormat.equalsIgnoreCase("Text")) {
 				//we save the text
 				String captionText = line[i];
-				newCaption.rawContent = captionText;
+				newSection.rawContent = captionText;
 				//text is cleaned before being inserted into the caption
-				newCaption.content = captionText.replaceAll("\\{.*?\\}", "").replace("\n", "<br />").replace("\\N", "<br />");
+				newSection.content = captionText.replaceAll("\\{.*?\\}", "").replace("\n", "<br />").replace("\\N", "<br />");
 			}
 		}
 
 		//timer is applied
 		if (timer != 100) {
-			newCaption.start.milliseconds /= (timer / 100);
-			newCaption.end.milliseconds /= (timer / 100);
+			newSection.start.milliseconds /= (timer / 100);
+			newSection.end.milliseconds /= (timer / 100);
 		}
-		return newCaption;
+		return newSection;
 	}
 
 	/**

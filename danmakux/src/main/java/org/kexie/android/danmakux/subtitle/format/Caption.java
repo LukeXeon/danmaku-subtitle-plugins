@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.subtitle.format;
 
 import android.support.annotation.NonNull;
 

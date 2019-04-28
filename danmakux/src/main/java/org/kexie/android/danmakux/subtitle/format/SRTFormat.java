@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.subtitle.format;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,16 +35,16 @@ import java.util.Iterator;
  * @author J. David Requejo
  *
  */
-public class SRTFormat implements TimedTextFormat {
+public class SRTFormat implements SubtitleFormat {
 
 
-	public TimedText parseFile(String fileName, InputStream is) throws IOException {
+	public Subtitle parseFile(String fileName, InputStream is) throws IOException {
 		return parseFile(fileName, is, Charset.defaultCharset());
 	}
 
-	public TimedText parseFile(String fileName, InputStream is, Charset isCharset) throws IOException {
+	public Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException {
 
-		TimedText tto = new TimedText();
+		Subtitle tto = new Subtitle();
 		Caption caption = new Caption();
 		int captionNumber = 1;
 		boolean allGood;
@@ -136,7 +136,7 @@ public class SRTFormat implements TimedTextFormat {
 	}
 
 
-	public String[] toFile(TimedText tto) {
+	public String[] toFile(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)

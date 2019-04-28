@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.subtitle.format;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,15 +33,15 @@ import java.util.Iterator;
  * @author J. David Requejo
  *
  */
-public class SCCFormat implements TimedTextFormat {
+public class SCCFormat implements SubtitleFormat {
 
-	public TimedText parseFile(String fileName, InputStream is) throws IOException, FatalParsingException {
+	public Subtitle parseFile(String fileName, InputStream is) throws IOException, FatalParsingException {
 		return parseFile(fileName, is, Charset.defaultCharset());
 	}
 
-	public TimedText parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
+	public Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
 
-		TimedText tto = new TimedText();
+		Subtitle tto = new Subtitle();
 		Caption newCaption = null;
 
 		//variables to represent a decoder
@@ -377,7 +377,7 @@ public class SCCFormat implements TimedTextFormat {
 	}
 
 
-	public String[] toFile(TimedText tto) {
+	public String[] toFile(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)
@@ -944,7 +944,7 @@ public class SCCFormat implements TimedTextFormat {
 		//TODO
 	}
 
-	private void createSCCStyles(TimedText tto) {
+	private void createSCCStyles(Subtitle tto) {
 		Style style;
 
 		style = new Style("white");

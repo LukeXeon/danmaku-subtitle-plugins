@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.subtitle.format;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -41,20 +41,20 @@ import javax.xml.parsers.DocumentBuilderFactory;
  * @author J. David Requejo
  *
  */
-public class XMLFormat implements TimedTextFormat {
+public class XMLFormat implements SubtitleFormat {
 
 	static {
 		System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
 	}
 
 
-	public TimedText parseFile(String fileName, InputStream is) throws IOException, FatalParsingException {
+	public Subtitle parseFile(String fileName, InputStream is) throws IOException, FatalParsingException {
 		return parseFile(fileName, is, Charset.defaultCharset());
 	}
 
-	public TimedText parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
+	public Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
 
-		TimedText tto = new TimedText();
+		Subtitle tto = new Subtitle();
 		tto.fileName = fileName;
 
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -256,7 +256,7 @@ public class XMLFormat implements TimedTextFormat {
 	}
 
 
-	public String[] toFile(TimedText tto) {
+	public String[] toFile(Subtitle tto) {
 
 		//first we check if the TimedTextObject had been built, otherwise...
 		if (!tto.built)
@@ -377,7 +377,7 @@ public class XMLFormat implements TimedTextFormat {
 	 * @param color
 	 * @return
 	 */
-	private String parseColor(String color, TimedText tto) {
+	private String parseColor(String color, Subtitle tto) {
 		String value;
 		String[] values;
 		if (color.startsWith("#")) {
@@ -444,7 +444,7 @@ public class XMLFormat implements TimedTextFormat {
 	 * @param timeExpression
 	 * @return
 	 */
-	private int parseTimeExpression(String timeExpression, TimedText tto, Document doc) {
+	private int parseTimeExpression(String timeExpression, Subtitle tto, Document doc) {
 		int mSeconds = 0;
 		if (timeExpression.contains(":")) {
 			//it is a clock time

@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.subtitle.format;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,15 +33,15 @@ import java.util.ArrayList;
  * @author J. David REQUEJO
  *
  */
-public class ASSFormat implements TimedTextFormat {
+public class ASSFormat implements SubtitleFormat {
 
-	public TimedText parseFile(String fileName, InputStream is) throws IOException {
+	public Subtitle parseFile(String fileName, InputStream is) throws IOException {
 		return parseFile(fileName, is, Charset.defaultCharset());
 	}
 
-	public TimedText parseFile(String fileName, InputStream is, Charset isCharset) throws IOException {
+	public Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException {
 
-		TimedText tto = new TimedText();
+		Subtitle tto = new Subtitle();
 		tto.fileName = fileName;
 
 		Caption caption;
@@ -204,7 +204,7 @@ public class ASSFormat implements TimedTextFormat {
 	}
 
 
-	public String[] toFile(TimedText tto) {
+	public String[] toFile(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)
@@ -478,7 +478,7 @@ public class ASSFormat implements TimedTextFormat {
 	 * @param timer          % to speed or slow the clock, above 100% span of the subtitles is reduced.
 	 * @return a new Caption object
 	 */
-	private Caption parseDialogueForASS(String[] line, String[] dialogueFormat, float timer, TimedText tto) {
+	private Caption parseDialogueForASS(String[] line, String[] dialogueFormat, float timer, Subtitle tto) {
 
 		Caption newCaption = new Caption();
 

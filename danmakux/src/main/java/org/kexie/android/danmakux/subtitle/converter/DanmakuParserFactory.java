@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.converter;
+package org.kexie.android.danmakux.subtitle.converter;
 
 import android.graphics.Color;
 import android.support.annotation.StringDef;
@@ -6,16 +6,16 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.Log;
 
-import org.kexie.android.danmakux.format.ASSFormat;
-import org.kexie.android.danmakux.format.Caption;
-import org.kexie.android.danmakux.format.SCCFormat;
-import org.kexie.android.danmakux.format.SRTFormat;
-import org.kexie.android.danmakux.format.STLFormat;
-import org.kexie.android.danmakux.format.Style;
-import org.kexie.android.danmakux.format.TimedText;
-import org.kexie.android.danmakux.format.TimedTextFormat;
-import org.kexie.android.danmakux.format.XMLFormat;
-import org.kexie.android.danmakux.utils.FileUtils;
+import org.kexie.android.danmakux.subtitle.format.ASSFormat;
+import org.kexie.android.danmakux.subtitle.format.Caption;
+import org.kexie.android.danmakux.subtitle.format.SCCFormat;
+import org.kexie.android.danmakux.subtitle.format.SRTFormat;
+import org.kexie.android.danmakux.subtitle.format.STLFormat;
+import org.kexie.android.danmakux.subtitle.format.Style;
+import org.kexie.android.danmakux.subtitle.format.Subtitle;
+import org.kexie.android.danmakux.subtitle.format.SubtitleFormat;
+import org.kexie.android.danmakux.subtitle.format.XMLFormat;
+import org.kexie.android.danmakux.subtitle.utils.FileUtils;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -54,7 +54,7 @@ public final class DanmakuParserFactory {
 
     private static final String TAG = "DanmakuParserFactory";
 
-    private static final Map<String, Class<? extends TimedTextFormat>> sFormats;
+    private static final Map<String, Class<? extends SubtitleFormat>> sFormats;
 
     static {
         sFormats = new ArrayMap<>();
@@ -79,8 +79,8 @@ public final class DanmakuParserFactory {
     }
 
     public static BaseDanmakuParser create(@Format String ext) {
-        Class<? extends TimedTextFormat> type = sFormats.get(ext.toLowerCase());
-        TimedTextFormat format0 = null;
+        Class<? extends SubtitleFormat> type = sFormats.get(ext.toLowerCase());
+        SubtitleFormat format0 = null;
         if (type != null) {
             try {
                 format0 = type.newInstance();
@@ -88,7 +88,7 @@ public final class DanmakuParserFactory {
                 e.printStackTrace();
             }
         }
-        TimedTextFormat format;
+        SubtitleFormat format;
         return (format = format0) == null ? null : new BaseDanmakuParser() {
             @Override
             protected IDanmakus parse() {
@@ -96,10 +96,10 @@ public final class DanmakuParserFactory {
                     AndroidFileSource source = (AndroidFileSource) mDataSource;
                     try {
                         Danmakus danmakus = new Danmakus();
-                        TimedText timedTextObject
+                        Subtitle subtitleObject
                                 = format.parseFile("", source.data());
                         for (Map.Entry<Integer, Caption> entry
-                                : timedTextObject.captions.entrySet()) {
+                                : subtitleObject.captions.entrySet()) {
                             BaseDanmaku danmaku = toDanmaku(entry);
                             if (danmaku != null) {
                                 danmakus.addItem(danmaku);

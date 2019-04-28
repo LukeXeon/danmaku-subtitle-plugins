@@ -10,7 +10,7 @@ import android.support.v7.widget.Toolbar;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
-import org.kexie.android.danmakux.converter.DanmakuParserFactory;
+import org.kexie.android.danmakux.subtitle.converter.DanmakuParserFactory;
 
 import java.io.InputStream;
 

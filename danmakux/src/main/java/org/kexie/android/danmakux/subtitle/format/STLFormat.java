@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.subtitle.format;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,20 +35,20 @@ import java.util.Locale;
  * @author J. David Requejo
  *
  */
-public class STLFormat implements TimedTextFormat {
+public class STLFormat implements SubtitleFormat {
 	private String frameRate = "25";
 
 	public void setFrameRate(String frameRate) {
 		this.frameRate = frameRate;
 	}
 
-	public TimedText parseFile(String fileName, InputStream is) throws IOException, FatalParsingException {
+	public Subtitle parseFile(String fileName, InputStream is) throws IOException, FatalParsingException {
 		return parseFile(fileName, is, Charset.defaultCharset());
 	}
 
-	public TimedText parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
+	public Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
 
-		TimedText tto = new TimedText();
+		Subtitle tto = new Subtitle();
 		tto.fileName = fileName;
 
 		byte[] gsiBlock = new byte[1024];
@@ -207,7 +207,7 @@ public class STLFormat implements TimedTextFormat {
 	}
 
 
-	public byte[] toFile(TimedText tto) {
+	public byte[] toFile(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)
@@ -377,7 +377,7 @@ public class STLFormat implements TimedTextFormat {
 	 * @param textField
 	 * @param justification
 	 */
-	private void parseTextForSTL(Caption currentCaption, byte[] textField, int justification, TimedText tto) {
+	private void parseTextForSTL(Caption currentCaption, byte[] textField, int justification, Subtitle tto) {
 
 		boolean italics = false;
 		boolean underline = false;
@@ -531,7 +531,7 @@ public class STLFormat implements TimedTextFormat {
 
 	}
 
-	private void createSTLStyles(TimedText tto) {
+	private void createSTLStyles(Subtitle tto) {
 		Style style;
 
 		style = new Style("white");

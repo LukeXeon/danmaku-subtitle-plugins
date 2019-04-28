@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.subtitle.format;
 
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * These objects can (should) only be created through the implementations of parseFile() in the {@link TimedText} interface
+ * These objects can (should) only be created through the implementations of parseFile() in the {@link Subtitle} interface
  * They are an object representation of a subtitle file and contain all the captions and associated styles.
  * <br><br>
  * Copyright (c) 2012 J. David Requejo <br>
@@ -31,7 +31,7 @@ import java.util.TreeMap;
  * @author J. David Requejo
  *
  */
-public class TimedText {
+public class Subtitle {
 
 	/*
 	 * Attributes
@@ -68,7 +68,7 @@ public class TimedText {
 	/**
 	 * Protected constructor so it can't be created from outside
 	 */
-	protected TimedText() {
+	protected Subtitle() {
 
 		styling = new HashMap<>();
 		captions = new TreeMap<>();

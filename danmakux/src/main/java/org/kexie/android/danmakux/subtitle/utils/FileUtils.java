@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.utils;
+package org.kexie.android.danmakux.subtitle.utils;
 
 import java.io.File;
 

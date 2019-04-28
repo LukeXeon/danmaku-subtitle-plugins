@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.subtitle.format;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -6,7 +6,7 @@ import java.nio.charset.Charset;
 
 /**
  * This class specifies the interface for any format supported by the converter, these formats must
- * create a {@link TimedText} from an {@link InputStream} (so it can process files form standard In or uploads)
+ * create a {@link Subtitle} from an {@link InputStream} (so it can process files form standard In or uploads)
  * and return a String array for text formats, or byte array for binary formats.
  * <br><br>
  * Copyright (c) 2012 J. David Requejo <br>
@@ -31,7 +31,7 @@ import java.nio.charset.Charset;
  * @author J. David Requejo
  *
  */
-public interface TimedTextFormat {
+public interface SubtitleFormat {
 
 	/**
 	 * This methods receives the path to a file, parses it, and returns a TimedTextObject
@@ -40,7 +40,7 @@ public interface TimedTextFormat {
 	 * @return TimedTextObject representing the parsed file
 	 * @throws IOException when having trouble reading the file from the given path
 	 */
-	TimedText parseFile(String fileName, InputStream is) throws IOException, FatalParsingException;
+	Subtitle parseFile(String fileName, InputStream is) throws IOException, FatalParsingException;
 
 	/**
 	 * This methods receives the path to a file, parses it, and returns a TimedTextObject
@@ -50,7 +50,7 @@ public interface TimedTextFormat {
 	 * @return TimedTextObject representing the parsed file
 	 * @throws IOException when having trouble reading the file from the given path
 	 */
-	TimedText parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException;
+	Subtitle parseFile(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException;
 
 	/**
 	 * This method transforms a given TimedTextObject into a formated subtitle file
@@ -60,6 +60,6 @@ public interface TimedTextFormat {
 	 * or String[] where each String is at least a line, if size is 2, then the file has at least two lines.
 	 * or byte[] in case the file is a binary (as is the case of STL format)
 	 */
-	Object toFile(TimedText tto);
+	Object toFile(Subtitle tto);
 
 }

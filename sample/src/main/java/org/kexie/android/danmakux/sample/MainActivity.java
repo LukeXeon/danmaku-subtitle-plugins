@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.simple;
+package org.kexie.android.danmakux.sample;
 
 import android.content.res.AssetManager;
 import android.os.Bundle;

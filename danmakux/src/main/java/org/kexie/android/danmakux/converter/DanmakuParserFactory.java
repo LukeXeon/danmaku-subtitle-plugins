@@ -70,8 +70,8 @@ public final class DanmakuParserFactory {
         return (format = format0) == null ? null : new BaseDanmakuParser() {
             @Override
             protected IDanmakus parse() {
-                AndroidFileSource source = (AndroidFileSource) mDataSource;
-                if (source != null) {
+                if (mDataSource instanceof AndroidFileSource) {
+                    AndroidFileSource source = (AndroidFileSource) mDataSource;
                     try {
                         Danmakus danmakus = new Danmakus();
                         TimedText timedTextObject
@@ -119,7 +119,6 @@ public final class DanmakuParserFactory {
             }
         };
     }
-
 
     //RRGGBBAA to AARRGGBB
     private static int parseColor(String value) {

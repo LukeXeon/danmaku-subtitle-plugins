@@ -7,6 +7,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.Locale;
 
 
 /**
@@ -233,15 +234,19 @@ public class STLFormat implements TimedTextFormat {
 
 		}
 		//other info
-		DateFormat dateFormat = new SimpleDateFormat("yyMMdd");
+		DateFormat dateFormat = new SimpleDateFormat("yyMMdd", Locale.getDefault());
 		Date date = new Date();
 		String aux = dateFormat.format(date);
 		aux += aux + "00"; //revision number
-		String aux2 = "" + tto.captions.size();
-		while (aux2.length() < 5) aux2 = "0" + aux2;
-		aux += aux2 + aux2 + "0013216100000000";
+		StringBuilder aux2Builder = new StringBuilder("" + tto.captions.size());
+		while (aux2Builder.length() < 5) aux2Builder.insert(0, "0");
+		String aux2 = aux2Builder
+				.append(aux2Builder)
+				.append(aux2Builder)
+				.append("0013216100000000")
+				.toString();
 		//we add the time of first subtitle
-		aux += tto.captions.get(tto.captions.firstKey()).start.getTime("hhmmssff/" + frameRate);
+		aux += tto.captions.firstEntry().getValue().start.getTime("hhmmssff/" + frameRate);
 		aux += "11OOO";
 		extra = aux.getBytes();
 		System.arraycopy(extra, 0, gsiBlock, 224, extra.length);
@@ -292,7 +297,7 @@ public class STLFormat implements TimedTextFormat {
 			//CF
 			ttiBlock[15] = 0;
 			//TF
-			String[] lines = currentC.content.split("<br />");
+			String[] lines = currentC.content.split("\\<br[ ]*/\\>");
 			//we clean XML, span would be implemented here
 			int pos = 16;
 			for (int i = 0; i < lines.length; i++)
@@ -331,14 +336,14 @@ public class STLFormat implements TimedTextFormat {
 			for (int i = 0; i < lines.length; i++) {
 
 				char[] chars = lines[i].toCharArray();
-				for (int j = 0; j < chars.length; j++) {
+				for (char aChar : chars) {
 					//check the text is not too long
 					if (pos > 126)
 						break;
 					//check it is a supported char, else it is ignored
-					if (chars[j] >= 0x20 && chars[j] <= 0x7f) {
-						ttiBlock[pos++] = (byte) chars[j];
-					} else if (chars[j] == 0x0A) {
+					if (aChar >= 0x20 && aChar <= 0x7f) {
+						ttiBlock[pos++] = (byte) aChar;
+					} else if (aChar == 0x0A) {
 						// line break
 						ttiBlock[pos++] = (byte) 0x8A;
 					}
@@ -379,7 +384,7 @@ public class STLFormat implements TimedTextFormat {
 		int diacritical_mark = 0;
 		String color = "white";
 		Style style;
-		String text = "";
+		StringBuilder text = new StringBuilder();
 
 		//we go around the field in pair of bytes to decode them
 		for (int i = 0; i < textField.length; i++) {
@@ -412,12 +417,12 @@ public class STLFormat implements TimedTextFormat {
 						case -118:
 							//line break
 							currentCaption.content += text + "<br />"; //line could be trimmed here
-							text = "";
+							text = new StringBuilder();
 							break;
 						case -113:
 							//end of caption
 							currentCaption.content += text; //line could be trimmed here
-							text = "";
+							text = new StringBuilder();
 							//we check the style
 							if (underline)
 								color += "U";
@@ -519,7 +524,7 @@ public class STLFormat implements TimedTextFormat {
 					else if ((diacritical_mark == -56) && (textField[i] == 117)) raw_string = "ü";
 					diacritical_mark = 0;
 				}
-				text += raw_string;
+				text.append(raw_string);
 			}
 
 		}
@@ -530,7 +535,7 @@ public class STLFormat implements TimedTextFormat {
 		Style style;
 
 		style = new Style("white");
-		style.color = Style.getRGBValue("name", "white");
+		style.color = Style.getRGBAValue("name", "white");
 		tto.styling.put(style.iD, style);
 
 		style = new Style("whiteU", style);
@@ -546,7 +551,7 @@ public class STLFormat implements TimedTextFormat {
 		tto.styling.put(style.iD, style);
 
 		style = new Style("green");
-		style.color = Style.getRGBValue("name", "green");
+		style.color = Style.getRGBAValue("name", "green");
 		tto.styling.put(style.iD, style);
 
 		style = new Style("greenU", style);
@@ -562,7 +567,7 @@ public class STLFormat implements TimedTextFormat {
 		tto.styling.put(style.iD, style);
 
 		style = new Style("blue");
-		style.color = Style.getRGBValue("name", "blue");
+		style.color = Style.getRGBAValue("name", "blue");
 		tto.styling.put(style.iD, style);
 
 		style = new Style("blueU", style);
@@ -578,7 +583,7 @@ public class STLFormat implements TimedTextFormat {
 		tto.styling.put(style.iD, style);
 
 		style = new Style("cyan");
-		style.color = Style.getRGBValue("name", "cyan");
+		style.color = Style.getRGBAValue("name", "cyan");
 		tto.styling.put(style.iD, style);
 
 		style = new Style("cyanU", style);
@@ -594,7 +599,7 @@ public class STLFormat implements TimedTextFormat {
 		tto.styling.put(style.iD, style);
 
 		style = new Style("red");
-		style.color = Style.getRGBValue("name", "red");
+		style.color = Style.getRGBAValue("name", "red");
 		tto.styling.put(style.iD, style);
 
 		style = new Style("redU", style);
@@ -610,7 +615,7 @@ public class STLFormat implements TimedTextFormat {
 		tto.styling.put(style.iD, style);
 
 		style = new Style("yellow");
-		style.color = Style.getRGBValue("name", "yellow");
+		style.color = Style.getRGBAValue("name", "yellow");
 		tto.styling.put(style.iD, style);
 
 		style = new Style("yellowU", style);
@@ -626,7 +631,7 @@ public class STLFormat implements TimedTextFormat {
 		tto.styling.put(style.iD, style);
 
 		style = new Style("magenta");
-		style.color = Style.getRGBValue("name", "magenta");
+		style.color = Style.getRGBAValue("name", "magenta");
 		tto.styling.put(style.iD, style);
 
 		style = new Style("magentaU", style);
@@ -642,7 +647,7 @@ public class STLFormat implements TimedTextFormat {
 		tto.styling.put(style.iD, style);
 
 		style = new Style("black");
-		style.color = Style.getRGBValue("name", "black");
+		style.color = Style.getRGBAValue("name", "black");
 		tto.styling.put(style.iD, style);
 
 		style = new Style("blackU", style);
@@ -657,5 +662,4 @@ public class STLFormat implements TimedTextFormat {
 		style.underline = false;
 		tto.styling.put(style.iD, style);
 	}
-	
 }

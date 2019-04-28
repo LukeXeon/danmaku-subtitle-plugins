@@ -21,5 +21,4 @@ public class FatalParsingException extends Exception {
 	public String getLocalizedMessage() {
 		return parsingErrror;
 	}
-
 }

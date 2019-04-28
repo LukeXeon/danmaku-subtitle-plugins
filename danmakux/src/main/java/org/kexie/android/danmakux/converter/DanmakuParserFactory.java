@@ -1,10 +1,7 @@
 package org.kexie.android.danmakux.converter;
 
-import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.ArrayMap;
-
-import com.orhanobut.logger.Logger;
 
 import org.kexie.android.danmakux.format.ASSFormat;
 import org.kexie.android.danmakux.format.Caption;
@@ -100,19 +97,9 @@ public final class DanmakuParserFactory {
                         .createDanmaku(BaseDanmaku.TYPE_FIX_BOTTOM, mContext);
                 int id = entry.getKey();
                 Caption caption = entry.getValue();
-
-                Logger.d(caption.rawContent);
-
-                Logger.d(caption.style.color + " " + caption.style.backgroundColor);
-
-
                 Style style = caption.style;
-
-
-                int textColor = Color.parseColor('#'
-                        + style.color.toUpperCase());
-                int backgroundColor = Color.parseColor('#'
-                        + style.backgroundColor.toUpperCase());
+                int textColor = parseColor(style.color);
+                int backgroundColor = parseColor(style.backgroundColor);
                 int fontSize = TextUtils.isDigitsOnly(style.fontSize)
                         ? Integer.parseInt(style.fontSize) : 20;
                 int start = caption.start.getMilliseconds();
@@ -129,5 +116,13 @@ public final class DanmakuParserFactory {
                 return item;
             }
         };
+    }
+
+
+    //RRGGBBAA to AARRGGBB
+    private static int parseColor(String value) {
+        String rgb = value.substring(0, 6);
+        String a = value.substring(6);
+        return Integer.parseInt(a + rgb, 16);
     }
 }

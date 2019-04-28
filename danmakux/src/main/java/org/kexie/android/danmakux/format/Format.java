@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.subtitle.format;
+package org.kexie.android.danmakux.format;
 
 import android.support.annotation.StringDef;
 import android.util.ArrayMap;
@@ -51,7 +51,6 @@ public abstract class Format {
 	public static final String FORMAT_XML = "xml";
 	public static final String FORMAT_TTML = "ttml";
 	public static final String FORMAT_DFXP = "dfxp";
-	public static final String FORMAT_LRC = "lrc";
 
 	private static final Map<String, Class<? extends Format>> sFormats;
 
@@ -65,7 +64,6 @@ public abstract class Format {
 		sFormats.put(FORMAT_XML, XMLFormat.class);
 		sFormats.put(FORMAT_TTML, XMLFormat.class);
 		sFormats.put(FORMAT_DFXP, XMLFormat.class);
-		sFormats.put(FORMAT_LRC, LRCFormat.class);
 	}
 
 	public static Format forName(@FormatType String ext) {
@@ -153,8 +151,7 @@ public abstract class Format {
 			FORMAT_STL,
 			FORMAT_XML,
 			FORMAT_TTML,
-			FORMAT_DFXP,
-			FORMAT_LRC})
+			FORMAT_DFXP})
 
 
 	private @interface FormatType {

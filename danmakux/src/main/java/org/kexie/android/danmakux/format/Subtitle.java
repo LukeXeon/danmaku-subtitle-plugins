@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.subtitle.format;
+package org.kexie.android.danmakux.format;
 
 import java.util.HashMap;
 import java.util.Hashtable;

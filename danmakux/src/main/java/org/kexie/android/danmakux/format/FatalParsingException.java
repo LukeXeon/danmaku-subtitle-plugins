@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.subtitle.format;
+package org.kexie.android.danmakux.format;
 
 /**
  * This class represents problems that may arise during the parsing of a subttile file.

@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.subtitle.format;
+package org.kexie.android.danmakux.format;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;

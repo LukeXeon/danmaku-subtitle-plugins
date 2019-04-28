@@ -1,6 +1,4 @@
-package org.kexie.android.danmakux.subtitle.format;
-
-import android.support.annotation.RestrictTo;
+package org.kexie.android.danmakux.format;
 
 import java.io.BufferedReader;
 import java.io.IOException;

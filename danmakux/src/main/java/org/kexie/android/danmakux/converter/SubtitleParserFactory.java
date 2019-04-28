@@ -1,6 +1,6 @@
-package org.kexie.android.danmakux.subtitle.converter;
+package org.kexie.android.danmakux.converter;
 
-import org.kexie.android.danmakux.subtitle.format.Format;
+import org.kexie.android.danmakux.format.Format;
 
 import master.flame.danmaku.danmaku.parser.BaseDanmakuParser;
 

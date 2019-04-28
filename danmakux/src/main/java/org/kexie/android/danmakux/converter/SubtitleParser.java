@@ -1,13 +1,14 @@
-package org.kexie.android.danmakux.subtitle.converter;
+package org.kexie.android.danmakux.converter;
 
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.kexie.android.danmakux.subtitle.format.Format;
-import org.kexie.android.danmakux.subtitle.format.Section;
-import org.kexie.android.danmakux.subtitle.format.Style;
-import org.kexie.android.danmakux.subtitle.format.Subtitle;
+import org.kexie.android.danmakux.format.Format;
+import org.kexie.android.danmakux.format.Section;
+import org.kexie.android.danmakux.format.Style;
+import org.kexie.android.danmakux.format.Subtitle;
 
 import java.util.Map;
 
@@ -23,6 +24,8 @@ public class SubtitleParser extends BaseDanmakuParser {
 
     private final Format format;
 
+    private final static int MAX_FONT_SIZE = 20;
+
     private static final String TAG = "SubtitleParser";
 
     public SubtitleParser(Format format) {
@@ -36,16 +39,21 @@ public class SubtitleParser extends BaseDanmakuParser {
         return Integer.parseInt(a + rgb, 16);
     }
 
+    private static int dp2px(final float dpValue) {
+        final float scale = Resources.getSystem().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
+    }
+
     @Override
     protected IDanmakus parse() {
         if (mDataSource instanceof AndroidFileSource) {
             AndroidFileSource source = (AndroidFileSource) mDataSource;
             try {
                 Danmakus danmakus = new Danmakus();
-                Subtitle subtitleObject
-                        = format.parse("", source.data());
+                Subtitle subtitle = format
+                        .parse("", source.data());
                 for (Map.Entry<Integer, Section> entry
-                        : subtitleObject.captions.entrySet()) {
+                        : subtitle.captions.entrySet()) {
                     BaseDanmaku danmaku = toDanmaku(entry);
                     if (danmaku != null) {
                         danmakus.addItem(danmaku);
@@ -68,6 +76,12 @@ public class SubtitleParser extends BaseDanmakuParser {
         if (TextUtils.isEmpty(section.content)) {
             return null;
         }
+        int start = section.start.milliseconds;
+        int end = section.end.milliseconds;
+        int duration = end - start;
+        if (duration <= 0) {
+            return null;
+        }
         BaseDanmaku item = mContext
                 .mDanmakuFactory
                 .createDanmaku(BaseDanmaku.TYPE_FIX_BOTTOM, mContext);
@@ -81,22 +95,21 @@ public class SubtitleParser extends BaseDanmakuParser {
                 && style.backgroundColor != null
                 ? parseColor(style.backgroundColor)
                 : Color.BLACK;
-        int fontSize = style != null
+        float fontSize = style != null
                 && style.fontSize != null
                 && TextUtils.isDigitsOnly(style.fontSize)
-                ? Integer.parseInt(style.fontSize) : 20;
-
-        int start = section.start.milliseconds;
-        int end = section.end.milliseconds;
-        String text = section.content;
+                ? Float.parseFloat(style.fontSize) : MAX_FONT_SIZE;
+        int fontSizePx = dp2px(Math.min(fontSize, MAX_FONT_SIZE));
         item.setTime(start);
-        item.duration = new Duration(Math.max(0, end - start));
+        item.duration = new Duration(duration);
         item.index = id;
-        item.textSize = fontSize;
+        item.textSize = fontSizePx;
         item.textColor = textColor;
         item.textShadowColor = backgroundColor;
         item.setTimer(mTimer);
-        DanmakuUtils.fillText(item, text);
+        String content = section.content.replaceAll("\\<br[ ]*/\\>", "/n");
+        DanmakuUtils.fillText(item, content);
+        item.flags = mContext.mGlobalFlagValues;
         return item;
     }
 }

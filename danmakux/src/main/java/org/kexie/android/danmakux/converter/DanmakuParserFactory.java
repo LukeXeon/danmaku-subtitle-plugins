@@ -105,7 +105,7 @@ public final class DanmakuParserFactory {
                                 danmakus.addItem(danmaku);
                             }
                         }
-                        Log.d(TAG, "parse: ");
+                        Log.d(TAG, "parse: size=" + danmakus.size());
                         return danmakus;
                     } catch (Exception e) {
                         e.printStackTrace();

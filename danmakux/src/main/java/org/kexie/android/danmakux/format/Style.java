@@ -1,9 +1,11 @@
 package org.kexie.android.danmakux.format;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Style {
 
 	private final static AtomicInteger styleCounter = new AtomicInteger(0);

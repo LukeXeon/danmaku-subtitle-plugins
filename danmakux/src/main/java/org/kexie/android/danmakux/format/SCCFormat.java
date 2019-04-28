@@ -1,5 +1,7 @@
 package org.kexie.android.danmakux.format;
 
+import android.support.annotation.RestrictTo;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,11 +36,8 @@ import java.util.Iterator;
  *
  */
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SCCFormat extends Format {
-
-	public Subtitle parse(String fileName, InputStream is) throws IOException, FatalParsingException {
-		return parse(fileName, is, Charset.defaultCharset());
-	}
 
 	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
 

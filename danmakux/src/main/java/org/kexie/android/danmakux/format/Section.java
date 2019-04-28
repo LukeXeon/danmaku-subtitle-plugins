@@ -1,7 +1,9 @@
 package org.kexie.android.danmakux.format;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.RestrictTo;
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Section {
 
     public Style style;

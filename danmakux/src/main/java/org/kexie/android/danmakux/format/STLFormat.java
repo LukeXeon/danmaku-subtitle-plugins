@@ -1,6 +1,7 @@
 package org.kexie.android.danmakux.format;
 
-import java.io.IOException;
+import android.support.annotation.RestrictTo;
+
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
@@ -36,15 +37,12 @@ import java.util.Locale;
  *
  */
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class STLFormat extends Format {
 	private String frameRate = "25";
 
 	public void setFrameRate(float frameRate) {
 		this.frameRate = Float.toString(frameRate);
-	}
-
-	public Subtitle parse(String fileName, InputStream is) throws IOException, FatalParsingException {
-		return parse(fileName, is, Charset.defaultCharset());
 	}
 
 	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws FatalParsingException {

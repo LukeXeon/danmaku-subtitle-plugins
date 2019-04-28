@@ -1,5 +1,7 @@
 package org.kexie.android.danmakux.format;
 
+import android.support.annotation.RestrictTo;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,11 +35,9 @@ import java.util.ArrayList;
  * @author J. David REQUEJO
  *
  */
-public class ASSFormat extends Format {
 
-	public Subtitle parse(String fileName, InputStream is) throws IOException {
-		return parse(fileName, is, Charset.defaultCharset());
-	}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class ASSFormat extends Format {
 
 	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws IOException {
 

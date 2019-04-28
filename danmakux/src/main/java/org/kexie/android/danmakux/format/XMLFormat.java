@@ -1,5 +1,7 @@
 package org.kexie.android.danmakux.format;
 
+import android.support.annotation.RestrictTo;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -42,15 +44,11 @@ import javax.xml.parsers.DocumentBuilderFactory;
  *
  */
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class XMLFormat extends Format {
 
 	static {
 		System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
-	}
-
-
-	public Subtitle parse(String fileName, InputStream is) throws IOException, FatalParsingException {
-		return parse(fileName, is, Charset.defaultCharset());
 	}
 
 	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {

@@ -1,5 +1,7 @@
 package org.kexie.android.danmakux.format;
 
+import android.support.annotation.RestrictTo;
+
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -32,6 +34,7 @@ import java.util.TreeMap;
  *
  */
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Subtitle {
 
 	/*

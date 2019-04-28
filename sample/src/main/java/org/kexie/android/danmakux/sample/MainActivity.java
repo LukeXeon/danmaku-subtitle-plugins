@@ -27,7 +27,6 @@ import android.widget.PopupWindow;
 import android.widget.VideoView;
 
 import org.kexie.android.danmakux.converter.SubtitleParserFactory;
-import org.kexie.android.danmakux.format.Format;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -181,10 +180,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         } catch (IllegalDataException e) {
             e.printStackTrace();
         }
-        Format format = Format.forName(Format.FORMAT_ASS);
 
-
-        BaseDanmakuParser parser = SubtitleParserFactory.create(format);
+        BaseDanmakuParser parser = SubtitleParserFactory.forFormat(SubtitleParserFactory.FORMAT_ASS);
         IDataSource<?> dataSource = loader.getDataSource();
         parser.load(dataSource);
         return parser;
@@ -235,7 +232,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
             try {
                 mParser = createParser(assetManager
-                        .open("standards/ASS/Aqui_no_hay_quien_viva_1.ass"));
+                        .open("standards/ASS/Kick-Ass.2010.720p.BluRay.X264-AMIABLE.ass"));
             } catch (IOException e) {
                 e.printStackTrace();
             }

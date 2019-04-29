@@ -16,7 +16,7 @@ public class Style {
 	 * @param styleName = identifier of this style
 	 */
 	protected Style(String styleName) {
-		this.iD = styleName;
+		this.id = styleName;
 	}
 
 	/**
@@ -26,7 +26,7 @@ public class Style {
 	 * @param style
 	 */
 	protected Style(String styleName, Style style) {
-		this.iD = styleName;
+		this.id = styleName;
 		this.font = style.font;
 		this.fontSize = style.fontSize;
 		this.color = style.color;
@@ -39,7 +39,7 @@ public class Style {
 	}
 
 	/* ATTRIBUTES */
-	public String iD;
+	public String id;
 	public String font;
 	public String fontSize;
 	/**
@@ -169,7 +169,7 @@ public class Style {
 	@Override
 	public String toString() {
 		return "Style{" +
-				"id='" + iD + '\'' +
+				"id='" + id + '\'' +
 				", font='" + font + '\'' +
 				", fontSize='" + fontSize + '\'' +
 				", color='" + color + '\'' +

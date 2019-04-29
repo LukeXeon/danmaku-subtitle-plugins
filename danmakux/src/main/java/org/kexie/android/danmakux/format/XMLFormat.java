@@ -86,17 +86,17 @@ public class XMLFormat extends Format {
 				//we get the id
 				Node currentAtr = attr.getNamedItem("id");
 				if (currentAtr != null)
-					style.iD = currentAtr.getNodeValue();
+					style.id = currentAtr.getNodeValue();
 				currentAtr = attr.getNamedItem("xml:id");
 				if (currentAtr != null)
-					style.iD = currentAtr.getNodeValue();
+					style.id = currentAtr.getNodeValue();
 
 				//we get the style it may be based upon
 				currentAtr = attr.getNamedItem("style");
 				if (currentAtr != null) {
 					Style old = tto.styling.get(currentAtr.getNodeValue());
 					if (old != null) {
-						style = new Style(style.iD, old);
+						style = new Style(style.id, old);
 					}
 				}
 
@@ -176,7 +176,7 @@ public class XMLFormat extends Format {
 						style.underline = false;
 
 				//we add the style
-				tto.styling.put(style.iD, style);
+				tto.styling.put(style.id, style);
 			}
 
 			//we parse the captions
@@ -300,7 +300,7 @@ public class XMLFormat extends Format {
 		//Next we iterate over the styles
 		for (Style style : tto.styling.values()) {
 			//we add the attributes
-			line = "\t\t\t<style xml:id=\"" + style.iD + "\"";
+			line = "\t\t\t<style xml:id=\"" + style.id + "\"";
 			if (style.color != null)
 				line += " tts:color=\"#" + style.color + "\"";
 			if (style.backgroundColor != null)
@@ -343,7 +343,7 @@ public class XMLFormat extends Format {
 			line = "\t\t\t<p begin=\"" + section.start.getTime("hh:mm:ss,ms").replace(',', '.') + "\"";
 			line += " end=\"" + section.end.getTime("hh:mm:ss,ms").replace(',', '.') + "\"";
 			if (section.style != null)
-				line += " style=\"" + section.style.iD + "\"";
+				line += " style=\"" + section.style.id + "\"";
 			//attributes are done being inserted, if region was implemented it should be added before this.
 			line += " >" + section.content + "</p>\n";
 			//we write the line

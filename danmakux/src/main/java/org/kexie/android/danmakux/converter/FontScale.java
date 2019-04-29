@@ -10,13 +10,14 @@ import java.util.Collection;
 final class FontScale {
     final static float MAX_FONT_SIZE = 20;
     final static float MIN_FONT_SIZE = 15;
+    final static float MID_FONT_SIZE = (MAX_FONT_SIZE + MIN_FONT_SIZE) / 2f;
     private final static FontScale NORMAL_FONT_SCALE
             = new FontScale(MAX_FONT_SIZE, MIN_FONT_SIZE);
     private final float max;
     private final float min;
     private final float density;
 
-    static float mid(float f1, float f2) {
+    private static float mid(float f1, float f2) {
         return (f1 + f2) / 2f;
     }
 
@@ -31,15 +32,13 @@ final class FontScale {
         if (value > mid) {
             float delta = value - mid;
             float p = delta / (max - mid);
-            float mid2 = mid(MAX_FONT_SIZE, MIN_FONT_SIZE);
-            value = mid2 + p * (MAX_FONT_SIZE - mid2);
+            value = MID_FONT_SIZE + p * (MAX_FONT_SIZE - MID_FONT_SIZE);
         } else if (value < mid) {
             float delta = mid - value;
             float p = delta / (mid - min);
-            float mid2 = mid(MAX_FONT_SIZE, MIN_FONT_SIZE);
-            value = mid2 - p * (mid2 - MIN_FONT_SIZE);
+            value = MID_FONT_SIZE - p * (MID_FONT_SIZE - MIN_FONT_SIZE);
         } else {
-            value = mid(MAX_FONT_SIZE, MIN_FONT_SIZE);
+            value = MID_FONT_SIZE;
         }
         return dp2px(value);
     }

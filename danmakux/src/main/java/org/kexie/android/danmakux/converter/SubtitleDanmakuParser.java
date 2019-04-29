@@ -142,7 +142,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         int fontSize = fontScale.adapt(style != null
                 && style.fontSize != null
                 ? Float.parseFloat(style.fontSize)
-                : FontScale.mid(FontScale.MAX_FONT_SIZE, FontScale.MIN_FONT_SIZE));
+                : FontScale.MID_FONT_SIZE);
         item.setTime(start);
         item.duration = new Duration(duration);
         item.index = id;

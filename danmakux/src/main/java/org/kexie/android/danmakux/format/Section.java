@@ -25,7 +25,7 @@ public class Section {
     public String toString() {
         return "Caption{" +
                 start + ".." + end +
-                ", " + (style != null ? style.iD : null) + ", " + content +
+                ", " + (style != null ? style.id : null) + ", " + content +
                 '}';
     }
 }

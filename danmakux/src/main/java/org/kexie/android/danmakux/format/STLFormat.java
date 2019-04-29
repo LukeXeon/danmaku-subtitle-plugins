@@ -536,130 +536,130 @@ public class STLFormat extends Format {
 
 		style = new Style("white");
 		style.color = Style.getRGBAValue("name", "white");
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("whiteU", style);
 		style.underline = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("whiteUI", style);
 		style.italic = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("whiteI", style);
 		style.underline = false;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("green");
 		style.color = Style.getRGBAValue("name", "green");
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("greenU", style);
 		style.underline = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("greenUI", style);
 		style.italic = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("greenI", style);
 		style.underline = false;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("blue");
 		style.color = Style.getRGBAValue("name", "blue");
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("blueU", style);
 		style.underline = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("blueUI", style);
 		style.italic = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("blueI", style);
 		style.underline = false;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("cyan");
 		style.color = Style.getRGBAValue("name", "cyan");
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("cyanU", style);
 		style.underline = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("cyanUI", style);
 		style.italic = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("cyanI", style);
 		style.underline = false;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("red");
 		style.color = Style.getRGBAValue("name", "red");
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("redU", style);
 		style.underline = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("redUI", style);
 		style.italic = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("redI", style);
 		style.underline = false;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("yellow");
 		style.color = Style.getRGBAValue("name", "yellow");
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("yellowU", style);
 		style.underline = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("yellowUI", style);
 		style.italic = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("yellowI", style);
 		style.underline = false;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("magenta");
 		style.color = Style.getRGBAValue("name", "magenta");
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("magentaU", style);
 		style.underline = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("magentaUI", style);
 		style.italic = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("magentaI", style);
 		style.underline = false;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("black");
 		style.color = Style.getRGBAValue("name", "black");
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("blackU", style);
 		style.underline = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("blackUI", style);
 		style.italic = true;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 
 		style = new Style("blackI", style);
 		style.underline = false;
-		tto.styling.put(style.iD, style);
+		tto.styling.put(style.id, style);
 	}
 }

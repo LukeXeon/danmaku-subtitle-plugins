@@ -131,7 +131,7 @@ public class ASSFormat extends Format {
 								//we parse the style
 								style = parseStyleForASS(line.split(":")[1].trim().split(","), styleFormat, lineCounter, isASS, tto.warnings);
 								//and save the style
-								tto.styling.put(style.iD, style);
+								tto.styling.put(style.id, style);
 							}
 							//next line
 							lineCounter++;
@@ -260,7 +260,7 @@ public class ASSFormat extends Format {
 			String styleLine = "Style: ";
 			//new style
 			//name
-			styleLine += style.iD + ",";
+			styleLine += style.id + ",";
 			styleLine += style.font + ",";
 			styleLine += style.fontSize + ",";
 			styleLine += getColorsForASS(tto.useASSInsteadOfSSA, style);
@@ -309,7 +309,7 @@ public class ASSFormat extends Format {
 			}
 			//style
 			if (section.style != null)
-				line += section.style.iD;
+				line += section.style.id;
 			else
 				line += "Default";
 			//default margins are used, no name or effect is recognized
@@ -352,7 +352,7 @@ public class ASSFormat extends Format {
 				//we go through every format parameter and save the interesting values
 				if (trimmedStyleFormat.equalsIgnoreCase("Name")) {
 					//we save the name
-					newStyle.iD = line[i].trim();
+					newStyle.id = line[i].trim();
 				} else if (trimmedStyleFormat.equalsIgnoreCase("Fontname")) {
 					//we save the font
 					newStyle.font = line[i].trim();

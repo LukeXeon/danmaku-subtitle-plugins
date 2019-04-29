@@ -149,7 +149,7 @@ public class Subtitle {
 			//new caption
 			//if it has a style
 			if (current.style != null) {
-				String iD = current.style.iD;
+				String iD = current.style.id;
 				//if we haven't saved it yet
 				if (!usedStyles.containsKey(iD))
 					usedStyles.put(iD, current.style);

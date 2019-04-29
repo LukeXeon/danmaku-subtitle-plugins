@@ -35,7 +35,8 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:28.0.0'
     implementation 'com.github.ctiao:DanmakuFlameMaster:0.9.25'
-    implementation 'org.mozilla.intl:chardet:1.0'
+    implementation 'com.googlecode.juniversalchardet:juniversalchardet:1.0.3'
+
     implementation 'com.orhanobut:logger:2.2.0'
 
 

@@ -11,19 +11,22 @@ import org.kexie.android.danmakux.format.Format;
 import org.kexie.android.danmakux.format.Section;
 import org.kexie.android.danmakux.format.Style;
 import org.kexie.android.danmakux.format.Subtitle;
+import org.mozilla.universalchardet.UniversalDetector;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Type;
 import java.nio.charset.Charset;
-import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 import master.flame.danmaku.danmaku.model.BaseDanmaku;
 import master.flame.danmaku.danmaku.model.Duration;
 import master.flame.danmaku.danmaku.model.IDanmakus;
 import master.flame.danmaku.danmaku.model.android.Danmakus;
 import master.flame.danmaku.danmaku.parser.BaseDanmakuParser;
-import master.flame.danmaku.danmaku.parser.android.AndroidFileSource;
+import master.flame.danmaku.danmaku.parser.IDataSource;
 import master.flame.danmaku.danmaku.util.DanmakuUtils;
 
 final class SubtitleDanmakuParser extends BaseDanmakuParser {
@@ -43,80 +46,59 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         return Integer.parseInt(a + rgb, 16);
     }
 
-    private static Charset getCharset(InputStream inputStream) throws IOException {
-        inputStream.mark(0);
-        inputStream.reset();
-        return null;
+    private static Charset getCharset(InputStream input) throws IOException {
+        input.mark(0);
+        byte[] buffer = new byte[4096];
+        UniversalDetector detector = new UniversalDetector(null);
+        int length;
+        while ((length = input.read(buffer)) > 0 && !detector.isDone()) {
+            detector.handleData(buffer, 0, length);
+        }
+        detector.dataEnd();
+        input.reset();
+        String charset = detector.getDetectedCharset();
+        return charset == null ? Charset.defaultCharset() : Charset.forName(charset);
     }
 
-
-    private static final class FontScale {
-        private final static float MAX_FONT_SIZE = 20;
-        private final static float MIN_FONT_SIZE = 15;
-        private final static FontScale NORMAL_FONT_SCALE
-                = new FontScale(MAX_FONT_SIZE, MIN_FONT_SIZE);
-        private final float max;
-        private final float min;
-        private final float density;
-
-        private FontScale(float max, float min) {
-            this.max = max;
-            this.min = min;
-            this.density = Resources.getSystem().getDisplayMetrics().density;
+    private static boolean checkType(Class<?> checkType, Type requestType) {
+        if (checkType == null
+                || Objects.equals(checkType.getClassLoader(),
+                Resources.class.getClassLoader())) {
+            return false;
         }
-
-        private static float mid(float f1, float f2) {
-            return (f1 + f2) / 2f;
-        }
-
-        private int adapt(float value) {
-            float mid = mid(min, max);
-            if (value > mid) {
-                float delta = value - mid;
-                float p = delta / (max - mid);
-                float mid2 = mid(MAX_FONT_SIZE, MIN_FONT_SIZE);
-                value = mid2 + p * (MAX_FONT_SIZE - mid2);
-            } else if (value < mid) {
-                float delta = mid - value;
-                float p = delta / (mid - min);
-                float mid2 = mid(MAX_FONT_SIZE, MIN_FONT_SIZE);
-                value = mid2 - p * (mid2 - MIN_FONT_SIZE);
-            } else {
-                value = mid(MAX_FONT_SIZE, MIN_FONT_SIZE);
+        for (Type type : checkType.getGenericInterfaces()) {
+            if (Objects.equals(type.getTypeName(),
+                    requestType.getTypeName())) {
+                return true;
             }
-            return dp2px(value);
         }
+        return checkType(checkType.getSuperclass(), requestType);
+    }
 
-        private int dp2px(float value) {
-            return (int) (value * density + 0.5f);
+    @SuppressWarnings("unchecked")
+    private InputStream getInput() {
+        IDataSource<?> source;
+        if ((source = mDataSource) == null) {
+            return null;
         }
-
-        private static FontScale create(Collection<Style> styles) {
-            if (styles.isEmpty()) {
-                return FontScale.NORMAL_FONT_SCALE;
-            }
-            float min = Float.MIN_VALUE, max = Float.MIN_VALUE;
-            for (Style style : styles) {
-                if (!TextUtils.isEmpty(style.fontSize)
-                        && TextUtils.isDigitsOnly(style.fontSize)) {
-                    float size = Float.parseFloat(style.fontSize);
-                    max = Math.max(max, size);
-                    min = Math.min(min, size);
-                }
-            }
-            return new FontScale(max, min);
+        if (!checkType(source.getClass(),
+                new TypeToken<IDataSource<InputStream>>() {
+                }.getType())) {
+            return null;
         }
+        IDataSource<InputStream> dataSource = (IDataSource<InputStream>) source;
+        InputStream input = dataSource.data();
+        return input.markSupported() ? input : new BufferedInputStream(input);
     }
 
     @Override
     protected IDanmakus parse() {
-        if (mDataSource instanceof AndroidFileSource) {
-            AndroidFileSource source = (AndroidFileSource) mDataSource;
+        InputStream input = getInput();
+        if (input != null) {
             try {
                 Danmakus danmakus = new Danmakus();
-                InputStream inputStream = source.data();
-                Charset charset = getCharset(inputStream);
-                Subtitle subtitle = format.parse("", inputStream, charset);
+                Charset charset = getCharset(input);
+                Subtitle subtitle = format.parse("", input, charset);
                 Log.w(TAG, "parse: " + subtitle.warnings);
                 FontScale fontScale = FontScale.create(subtitle.styling.values());
                 for (Map.Entry<Integer, Section> entry
@@ -130,8 +112,6 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 return danmakus;
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                source.release();
             }
         }
         return null;
@@ -166,7 +146,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         int fontSize = fontScale.adapt(style != null
                 && style.fontSize != null
                 ? Float.parseFloat(style.fontSize)
-                : (FontScale.MAX_FONT_SIZE + FontScale.MIN_FONT_SIZE) / 2f);
+                : FontScale.mid(FontScale.MAX_FONT_SIZE, FontScale.MIN_FONT_SIZE));
         item.setTime(start);
         item.duration = new Duration(duration);
         item.index = id;

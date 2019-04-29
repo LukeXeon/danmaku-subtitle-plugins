@@ -1,5 +1,6 @@
 package org.kexie.android.danmakux.converter;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.StringDef;
 import android.util.ArrayMap;
 
@@ -10,7 +11,6 @@ import org.kexie.android.danmakux.format.SRTFormat;
 import org.kexie.android.danmakux.format.STLFormat;
 import org.kexie.android.danmakux.format.XMLFormat;
 
-import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -63,7 +63,7 @@ public final class SubtitleParserFactory {
 
     private static final String TAG = "DanmakuParserFactory";
 
-    public static BaseDanmakuParser forFormat(@FormatType String ext) {
+    public static BaseDanmakuParser forFormat(@NonNull @FormatType String ext) {
         Class<? extends Format> type = sFormats.get(ext.toLowerCase());
         Format format = null;
         if (type != null) {
@@ -83,35 +83,6 @@ public final class SubtitleParserFactory {
         STLFormat format = new STLFormat();
         format.setFrameRate(frameRate);
         return new SubtitleDanmakuParser(format);
-    }
-
-    public static String getFileFormat(File file) {
-        if (file == null) return "";
-        return getFileFormat(file.getPath());
-    }
-
-    /**
-     * Return the extension of file.
-     *
-     * @param filePath The path of file.
-     * @return the extension of file
-     */
-    public static String getFileFormat(String filePath) {
-        if (isSpace(filePath)) return "";
-        int lastPoi = filePath.lastIndexOf('.');
-        int lastSep = filePath.lastIndexOf(File.separator);
-        if (lastPoi == -1 || lastSep >= lastPoi) return "";
-        return filePath.substring(lastPoi + 1);
-    }
-
-    private static boolean isSpace(final String s) {
-        if (s == null) return true;
-        for (int i = 0, len = s.length(); i < len; ++i) {
-            if (!Character.isWhitespace(s.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public static Set<String> getSupportFormats() {

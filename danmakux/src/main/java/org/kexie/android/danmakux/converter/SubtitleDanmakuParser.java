@@ -86,11 +86,11 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 Charset charset = getCharset(input);
                 Subtitle subtitle = format.parse("", input, charset);
                 Log.w(TAG, "parse: " + subtitle.warnings);
-                TextStyle textStyle = TextStyle
-                        .create(subtitle.styles.values(), getDisplayer());
+                TextStyleContext textStyleContext = TextStyleContext
+                        .create(subtitle.styles.values(), getDisplayer(), mContext);
                 for (Map.Entry<Integer, Section> entry
                         : subtitle.captions.entrySet()) {
-                    BaseDanmaku danmaku = toDanmaku(entry, textStyle);
+                    BaseDanmaku danmaku = toDanmaku(entry, textStyleContext);
                     if (danmaku != null) {
                         danmakus.addItem(danmaku);
                     }
@@ -105,7 +105,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     }
 
     private BaseDanmaku
-    toDanmaku(Map.Entry<Integer, Section> entry, TextStyle textStyle) {
+    toDanmaku(Map.Entry<Integer, Section> entry, TextStyleContext context) {
         Section section = entry.getValue();
         if (TextUtils.isEmpty(section.content)) {
             return null;
@@ -116,16 +116,13 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         if (duration <= 0) {
             return null;
         }
-        BaseDanmaku item = mContext
-                .mDanmakuFactory
-                .createDanmaku(BaseDanmaku.TYPE_FIX_BOTTOM, mContext);
+        BaseDanmaku item = context.newDanmaku(section);
         int id = entry.getKey();
         item.setTime(start);
         item.duration = new Duration(duration);
         item.index = id;
         item.setTimer(mTimer);
         item.flags = mContext.mGlobalFlagValues;
-        textStyle.adapt(item, section);
         return item;
     }
 }

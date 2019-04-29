@@ -31,7 +31,7 @@ public class Style {
 		this.fontSize = style.fontSize;
 		this.color = style.color;
 		this.backgroundColor = style.backgroundColor;
-		this.textAlign = style.textAlign;
+		this.alignment = style.alignment;
 		this.italic = style.italic;
 		this.underline = style.underline;
 		this.bold = style.bold;
@@ -47,7 +47,7 @@ public class Style {
 	 */
 	public String color;
 	public String backgroundColor;
-	public String textAlign = "";
+	public String alignment = "";
 
 	public boolean italic;
 	public boolean bold;
@@ -174,7 +174,7 @@ public class Style {
 				", fontSize='" + fontSize + '\'' +
 				", color='" + color + '\'' +
 				", backgroundColor='" + backgroundColor + '\'' +
-				", textAlign='" + textAlign + '\'' +
+				", alignment='" + alignment + '\'' +
 				", italic=" + italic +
 				", bold=" + bold +
 				", underline=" + underline +

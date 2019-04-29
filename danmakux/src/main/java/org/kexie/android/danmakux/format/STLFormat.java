@@ -289,9 +289,9 @@ public class STLFormat extends Format {
 			ttiBlock[13] = 18;
 			//JC
 			if (currentC.style != null) {
-				if (currentC.style.textAlign.contains("left"))
+				if (currentC.style.alignment.contains("left"))
 					ttiBlock[14] = 1;
-				else if (currentC.style.textAlign.contains("right"))
+				else if (currentC.style.alignment.contains("right"))
 					ttiBlock[14] = 3;
 			} else ttiBlock[14] = 2;
 			//CF
@@ -434,7 +434,7 @@ public class STLFormat extends Format {
 								color += "L";
 								if (tto.styles.get(color) == null) {
 									style = new Style(color, style);
-									style.textAlign = "bottom-left";
+									style.alignment = "bottom-left";
 									tto.styles.put(color, style);
 								} else
 									style = tto.styles.get(color);
@@ -442,7 +442,7 @@ public class STLFormat extends Format {
 								color += "R";
 								if (tto.styles.get(color) == null) {
 									style = new Style(color, style);
-									style.textAlign = "bottom-rigth";
+									style.alignment = "bottom-rigth";
 									tto.styles.put(color, style);
 								} else
 									style = tto.styles.get(color);

@@ -160,12 +160,12 @@ public class XMLFormat extends Format {
 				}
 
 				//we check for text align
-				currentAtr = attr.getNamedItem("tts:textAlign");
+				currentAtr = attr.getNamedItem("tts:alignment");
 				if (currentAtr != null)
 					if (currentAtr.getNodeValue().equalsIgnoreCase("left") || currentAtr.getNodeValue().equalsIgnoreCase("start"))
-						style.textAlign = "bottom-left";
+						style.alignment = "bottom-left";
 					else if (currentAtr.getNodeValue().equalsIgnoreCase("right") || currentAtr.getNodeValue().equalsIgnoreCase("end"))
-						style.textAlign = "bottom-right";
+						style.alignment = "bottom-right";
 
 				//we check for underline
 				currentAtr = attr.getNamedItem("tts:textDecoration");
@@ -313,10 +313,10 @@ public class XMLFormat extends Format {
 				line += " tts:fontStyle=\"italic\"";
 			if (style.bold)
 				line += " tts:fontWeight=\"bold\"";
-			line += " tts:textAlign=\"";
-			if (style.textAlign.contains("left"))
+			line += " tts:alignment=\"";
+			if (style.alignment.contains("left"))
 				line += "left\"";
-			else if (style.textAlign.contains("right"))
+			else if (style.alignment.contains("right"))
 				line += "rigth\"";
 			else line += "center\"";
 			if (style.underline)

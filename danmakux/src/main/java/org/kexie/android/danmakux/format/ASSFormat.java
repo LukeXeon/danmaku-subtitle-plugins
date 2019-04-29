@@ -266,7 +266,7 @@ public class ASSFormat extends Format {
 			styleLine += getOptionsForASS(tto.useASSInsteadOfSSA, style);
 			//BorderStyle, Outline, Shadow
 			styleLine += "1,2,2,";
-			styleLine += getAlignForASS(tto.useASSInsteadOfSSA, style.textAlign);
+			styleLine += getAlignForASS(tto.useASSInsteadOfSSA, style.alignment);
 			//MarginL, MarginR, MarginV
 			styleLine += ",0,0,0,";
 			//AlphaLevel
@@ -399,31 +399,31 @@ public class ASSFormat extends Format {
 					if (isASS) {
 						switch (placement) {
 							case 1:
-								newStyle.textAlign = "bottom-left";
+								newStyle.alignment = "bottom-left";
 								break;
 							case 2:
-								newStyle.textAlign = "bottom-center";
+								newStyle.alignment = "bottom-center";
 								break;
 							case 3:
-								newStyle.textAlign = "bottom-right";
+								newStyle.alignment = "bottom-right";
 								break;
 							case 4:
-								newStyle.textAlign = "mid-left";
+								newStyle.alignment = "mid-left";
 								break;
 							case 5:
-								newStyle.textAlign = "mid-center";
+								newStyle.alignment = "mid-center";
 								break;
 							case 6:
-								newStyle.textAlign = "mid-right";
+								newStyle.alignment = "mid-right";
 								break;
 							case 7:
-								newStyle.textAlign = "top-left";
+								newStyle.alignment = "top-left";
 								break;
 							case 8:
-								newStyle.textAlign = "top-center";
+								newStyle.alignment = "top-center";
 								break;
 							case 9:
-								newStyle.textAlign = "top-right";
+								newStyle.alignment = "top-right";
 								break;
 							default:
 								warnings += "undefined alignment for style at line " + index + "\n\n";
@@ -431,31 +431,31 @@ public class ASSFormat extends Format {
 					} else {
 						switch (placement) {
 							case 9:
-								newStyle.textAlign = "bottom-left";
+								newStyle.alignment = "bottom-left";
 								break;
 							case 10:
-								newStyle.textAlign = "bottom-center";
+								newStyle.alignment = "bottom-center";
 								break;
 							case 11:
-								newStyle.textAlign = "bottom-right";
+								newStyle.alignment = "bottom-right";
 								break;
 							case 1:
-								newStyle.textAlign = "mid-left";
+								newStyle.alignment = "mid-left";
 								break;
 							case 2:
-								newStyle.textAlign = "mid-center";
+								newStyle.alignment = "mid-center";
 								break;
 							case 3:
-								newStyle.textAlign = "mid-right";
+								newStyle.alignment = "mid-right";
 								break;
 							case 5:
-								newStyle.textAlign = "top-left";
+								newStyle.alignment = "top-left";
 								break;
 							case 6:
-								newStyle.textAlign = "top-center";
+								newStyle.alignment = "top-center";
 								break;
 							case 7:
-								newStyle.textAlign = "top-right";
+								newStyle.alignment = "top-right";
 								break;
 							default:
 								warnings += "undefined alignment for style at line " + index + "\n\n";

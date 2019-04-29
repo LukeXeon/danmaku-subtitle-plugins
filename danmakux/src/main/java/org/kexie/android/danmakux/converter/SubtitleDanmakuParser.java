@@ -46,7 +46,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
 
     private static Charset getCharset(InputStream input) throws IOException {
         input.mark(0);
-        byte[] buffer = new byte[4096];
+        byte[] buffer = new byte[1024];
         UniversalDetector detector = new UniversalDetector(null);
         int length;
         while ((length = input.read(buffer)) > 0 && !detector.isDone()) {

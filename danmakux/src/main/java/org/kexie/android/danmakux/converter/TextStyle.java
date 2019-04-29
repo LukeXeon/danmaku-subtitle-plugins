@@ -13,7 +13,8 @@ import java.util.Collection;
 import master.flame.danmaku.danmaku.model.BaseDanmaku;
 import master.flame.danmaku.danmaku.model.IDisplayer;
 
-final class TextStyleAdapter {
+final class TextStyle {
+
     private final static float MAX_FONT_SIZE = 20;
     private final static float MIN_FONT_SIZE = 15;
     private final static float MID_FONT_SIZE = (MAX_FONT_SIZE + MIN_FONT_SIZE) / 2f;
@@ -32,7 +33,7 @@ final class TextStyleAdapter {
         return (f1 + f2) / 2f;
     }
 
-    private TextStyleAdapter(float max, float min, IDisplayer displayer) {
+    private TextStyle(float max, float min, IDisplayer displayer) {
         this.max = max;
         this.min = min;
         this.displayer = displayer;
@@ -152,9 +153,9 @@ final class TextStyleAdapter {
         return (int) (value * displayer.getDensity() + 0.5f);
     }
 
-    static TextStyleAdapter create(Collection<Style> styles, IDisplayer displayer) {
+    static TextStyle create(Collection<Style> styles, IDisplayer displayer) {
         if (styles.isEmpty()) {
-            return new TextStyleAdapter(MAX_FONT_SIZE, MIN_FONT_SIZE, displayer);
+            return new TextStyle(MAX_FONT_SIZE, MIN_FONT_SIZE, displayer);
         }
         float min = Float.MIN_VALUE, max = Float.MIN_VALUE;
         for (Style style : styles) {
@@ -165,6 +166,6 @@ final class TextStyleAdapter {
                 min = Math.min(min, size);
             }
         }
-        return new TextStyleAdapter(max, min, displayer);
+        return new TextStyle(max, min, displayer);
     }
 }

@@ -74,7 +74,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         }
         IDataSource<InputStream> dataSource = (IDataSource<InputStream>) source;
         InputStream input = dataSource.data();
-        return input.markSupported() ? input : new BufferedInputStream(input);
+        return new BufferedInputStream(input);
     }
 
     @Override
@@ -86,11 +86,11 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 Charset charset = getCharset(input);
                 Subtitle subtitle = format.parse("", input, charset);
                 Log.w(TAG, "parse: " + subtitle.warnings);
-                TextStyleAdapter textStyleAdapter = TextStyleAdapter
+                TextStyle textStyle = TextStyle
                         .create(subtitle.styles.values(), getDisplayer());
                 for (Map.Entry<Integer, Section> entry
                         : subtitle.captions.entrySet()) {
-                    BaseDanmaku danmaku = toDanmaku(entry, textStyleAdapter);
+                    BaseDanmaku danmaku = toDanmaku(entry, textStyle);
                     if (danmaku != null) {
                         danmakus.addItem(danmaku);
                     }
@@ -105,7 +105,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     }
 
     private BaseDanmaku
-    toDanmaku(Map.Entry<Integer, Section> entry, TextStyleAdapter textStyleAdapter) {
+    toDanmaku(Map.Entry<Integer, Section> entry, TextStyle textStyle) {
         Section section = entry.getValue();
         if (TextUtils.isEmpty(section.content)) {
             return null;
@@ -125,7 +125,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         item.index = id;
         item.setTimer(mTimer);
         item.flags = mContext.mGlobalFlagValues;
-        textStyleAdapter.adapt(item, section);
+        textStyle.adapt(item, section);
         return item;
     }
 }

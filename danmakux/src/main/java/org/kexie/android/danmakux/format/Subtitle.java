@@ -50,7 +50,7 @@ public class Subtitle {
 	public String language = "";
 
 	//list of styles (id, reference)
-	public Map<String, Style> styling;
+	public Map<String, Style> styles;
 
 	//list of captions (begin time, reference)
 	//represented by a tree map to maintain order
@@ -74,7 +74,7 @@ public class Subtitle {
 	 */
 	protected Subtitle() {
 
-		styling = new HashMap<>();
+		styles = new HashMap<>();
 		captions = new TreeMap<>();
 
 		warnings = "List of non fatal errors produced during parsing:\n\n";
@@ -156,6 +156,6 @@ public class Subtitle {
 			}
 		}
 		//we saved the used styles
-		this.styling = usedStyles;
+		this.styles = usedStyles;
 	}
 }

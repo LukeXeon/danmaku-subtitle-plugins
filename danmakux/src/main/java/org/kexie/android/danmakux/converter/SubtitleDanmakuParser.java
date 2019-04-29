@@ -86,7 +86,8 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 Charset charset = getCharset(input);
                 Subtitle subtitle = format.parse("", input, charset);
                 Log.w(TAG, "parse: " + subtitle.warnings);
-                TextStyleAdapter textStyleAdapter = TextStyleAdapter.create(subtitle.styling.values());
+                TextStyleAdapter textStyleAdapter = TextStyleAdapter
+                        .create(subtitle.styles.values(), getDisplayer());
                 for (Map.Entry<Integer, Section> entry
                         : subtitle.captions.entrySet()) {
                     BaseDanmaku danmaku = toDanmaku(entry, textStyleAdapter);

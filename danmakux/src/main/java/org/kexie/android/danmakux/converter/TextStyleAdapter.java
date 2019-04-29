@@ -1,9 +1,8 @@
 package org.kexie.android.danmakux.converter;
 
-import android.content.res.Resources;
 import android.graphics.Color;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 
 import org.kexie.android.danmakux.format.Section;
 import org.kexie.android.danmakux.format.Style;
@@ -12,16 +11,15 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import master.flame.danmaku.danmaku.model.BaseDanmaku;
+import master.flame.danmaku.danmaku.model.IDisplayer;
 
 final class TextStyleAdapter {
     private final static float MAX_FONT_SIZE = 20;
     private final static float MIN_FONT_SIZE = 15;
     private final static float MID_FONT_SIZE = (MAX_FONT_SIZE + MIN_FONT_SIZE) / 2f;
-    private final static TextStyleAdapter NORMAL_FONT_SCALE
-            = new TextStyleAdapter(MAX_FONT_SIZE, MIN_FONT_SIZE);
     private final float max;
     private final float min;
-    private final DisplayMetrics displayMetrics;
+    private final IDisplayer displayer;
 
     //RRGGBBAA to AARRGGBB
     private static int parseColor(String value) {
@@ -34,10 +32,10 @@ final class TextStyleAdapter {
         return (f1 + f2) / 2f;
     }
 
-    private TextStyleAdapter(float max, float min) {
+    private TextStyleAdapter(float max, float min, IDisplayer displayer) {
         this.max = max;
         this.min = min;
-        this.displayMetrics = Resources.getSystem().getDisplayMetrics();
+        this.displayer = displayer;
     }
 
     void adapt(BaseDanmaku item, Section section) {
@@ -45,7 +43,7 @@ final class TextStyleAdapter {
         if (style == null) {
             item.textColor = Color.WHITE;
             item.textShadowColor = Color.BLACK;
-            item.textSize = dp2px(MID_FONT_SIZE);
+            adaptText(item, null, section.content);
             return;
         }
         item.textColor = style.color != null
@@ -57,12 +55,14 @@ final class TextStyleAdapter {
         adaptText(item, style, section.content);
     }
 
-    @SuppressWarnings("unchecked")
-    private void adaptText(BaseDanmaku item, Style style, String text) {
-        float textSize = mappingSize(style.fontSize != null
+    private void adaptText(BaseDanmaku item, @Nullable Style style, String text) {
+        boolean nonNull;
+        //unit px
+        int textSize = mappingToPxRange((nonNull = style != null)
+                && style.fontSize != null
                 ? Float.parseFloat(style.fontSize)
                 : MID_FONT_SIZE);
-        text = text.replaceAll("\\<br[ ]*\\>", BaseDanmaku.DANMAKU_BR_CHAR);
+        text = text.replaceAll("\\<br[ ]*/\\>", BaseDanmaku.DANMAKU_BR_CHAR);
         item.text = text;
         //分割字符串
         String[] lines = text.split(BaseDanmaku.DANMAKU_BR_CHAR, -1);
@@ -71,11 +71,11 @@ final class TextStyleAdapter {
         int maxLength = Integer.MIN_VALUE;
         int[] lengths = new int[lines.length];
         for (int i = 0; i < lines.length; ++i) {
-            String line = lines[i];
+            String line = lines[i] = lines[i].trim();
             int trueLength = 0;
             int length = line.length();
             for (int j = 0; j < length; ++j) {
-                char ch = line.charAt(i);
+                char ch = line.charAt(j);
                 if (TextUtils.isGraphic(ch)) {
                     trueLength += isPrintableAscii(ch) ? 1 : 2;
                 }
@@ -83,11 +83,12 @@ final class TextStyleAdapter {
             lengths[i] = trueLength;
             maxLength = Math.max(maxLength, trueLength);
         }
-        //超出屏幕大小，要重新调整
-        int minWidth = Math.min(displayMetrics.widthPixels, displayMetrics.heightPixels);
-        int maxPx = dp2px(textSize) * maxLength;
-        if (maxPx > minWidth) {
-            textSize = (float) minWidth / maxLength;
+
+        //如果超出屏幕大小要重新调整
+        int displayMaxSizePx = Math.max(displayer.getWidth(), displayer.getHeight());
+        int textSizePx = textSize * maxLength;
+        if (textSizePx > displayMaxSizePx) {
+            textSize = displayMaxSizePx / maxLength;
         }
         //调整对齐
         for (int i = 0; i < lines.length; ++i) {
@@ -96,29 +97,30 @@ final class TextStyleAdapter {
             int padding = maxLength - length;
             if (padding > 0) {
                 StringBuilder builder = new StringBuilder(maxLength);
-                if (!TextUtils.isEmpty(style.textAlign)
-                        && style.textAlign.contains("right")) {
+                boolean bool = nonNull && !TextUtils.isEmpty(style.textAlign);
+                if (bool && style.textAlign.contains("right")) {
                     char[] chars = new char[padding];
                     Arrays.fill(chars, ' ');
-                    builder.append(line)
-                            .append(chars);
-                } else if (!TextUtils.isEmpty(style.textAlign)
-                        && style.textAlign.contains("left")) {
+                    line = builder.append(line)
+                            .append(chars)
+                            .toString();
+                } else if (bool && style.textAlign.contains("left")) {
                     char[] chars = new char[padding];
                     Arrays.fill(chars, ' ');
-                    builder.append(chars)
-                            .append(line);
+                    line = builder.append(chars)
+                            .append(line)
+                            .toString();
                 } else {
                     padding /= 2;
                     char[] chars = new char[padding];
                     Arrays.fill(chars, ' ');
-                    builder.append(chars)
+                    line = builder.append(chars)
                             .append(line)
-                            .append(chars);
-                    line = builder.toString();
+                            .append(chars)
+                            .toString();
                 }
+                lines[i] = line;
             }
-            lines[i] = line;
         }
         item.lines = lines;
         item.textSize = textSize;
@@ -130,7 +132,7 @@ final class TextStyleAdapter {
         return (asciiFirst <= c && c <= asciiLast) || c == '\r' || c == '\n';
     }
 
-    private int mappingSize(float value) {
+    private int mappingToPxRange(float value) {
         float mid = mid(min, max);
         if (value > mid) {
             float delta = value - mid;
@@ -147,12 +149,12 @@ final class TextStyleAdapter {
     }
 
     private int dp2px(float value) {
-        return (int) (value * displayMetrics.density + 0.5f);
+        return (int) (value * displayer.getDensity() + 0.5f);
     }
 
-    static TextStyleAdapter create(Collection<Style> styles) {
+    static TextStyleAdapter create(Collection<Style> styles, IDisplayer displayer) {
         if (styles.isEmpty()) {
-            return TextStyleAdapter.NORMAL_FONT_SCALE;
+            return new TextStyleAdapter(MAX_FONT_SIZE, MIN_FONT_SIZE, displayer);
         }
         float min = Float.MIN_VALUE, max = Float.MIN_VALUE;
         for (Style style : styles) {
@@ -163,6 +165,6 @@ final class TextStyleAdapter {
                 min = Math.min(min, size);
             }
         }
-        return new TextStyleAdapter(max, min);
+        return new TextStyleAdapter(max, min, displayer);
     }
 }

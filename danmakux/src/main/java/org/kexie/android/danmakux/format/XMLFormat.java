@@ -94,7 +94,7 @@ public class XMLFormat extends Format {
 				//we get the style it may be based upon
 				currentAtr = attr.getNamedItem("style");
 				if (currentAtr != null) {
-					Style old = tto.styling.get(currentAtr.getNodeValue());
+					Style old = tto.styles.get(currentAtr.getNodeValue());
 					if (old != null) {
 						style = new Style(style.id, old);
 					}
@@ -176,7 +176,7 @@ public class XMLFormat extends Format {
 						style.underline = false;
 
 				//we add the style
-				tto.styling.put(style.id, style);
+				tto.styles.put(style.id, style);
 			}
 
 			//we parse the captions
@@ -211,7 +211,7 @@ public class XMLFormat extends Format {
 				//we get the style
 				currentAtr = attr.getNamedItem("style");
 				if (currentAtr != null) {
-					Style style = tto.styling.get(currentAtr.getNodeValue());
+					Style style = tto.styles.get(currentAtr.getNodeValue());
 					if (style != null)
 						section.style = style;
 					else
@@ -264,12 +264,12 @@ public class XMLFormat extends Format {
 		//we will write the lines in an ArrayList 
 		int index = 0;
 		//the minimum size of the file is the number of captions and styles + lines for sections and formats and the metadata, so we'll take some extra space.
-		ArrayList<String> file = new ArrayList<>(30 + tto.styling.size() + tto.captions.size());
+		ArrayList<String> file = new ArrayList<>(30 + tto.styles.size() + tto.captions.size());
 
 		//identification line is placed
 		file.add(index++, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 		//root element is placed
-		file.add(index++, "<tt xml:lang=\"" + tto.language + "\" xmlns=\"http://www.w3.org/ns/ttml\" xmlns:tts=\"http://www.w3.org/ns/ttml#styling\">");
+		file.add(index++, "<tt xml:lang=\"" + tto.language + "\" xmlns=\"http://www.w3.org/ns/ttml\" xmlns:tts=\"http://www.w3.org/ns/ttml#styles\">");
 		//head
 		file.add(index++, "\t<head>");
 		//metadata
@@ -293,12 +293,12 @@ public class XMLFormat extends Format {
 
 		//metadata closes
 		file.add(index++, "\t\t</metadata>");
-		//styling opens
-		file.add(index++, "\t\t<styling>");
+		//styles opens
+		file.add(index++, "\t\t<styles>");
 
 		String line;
 		//Next we iterate over the styles
-		for (Style style : tto.styling.values()) {
+		for (Style style : tto.styles.values()) {
 			//we add the attributes
 			line = "\t\t\t<style xml:id=\"" + style.id + "\"";
 			if (style.color != null)
@@ -327,8 +327,8 @@ public class XMLFormat extends Format {
 			file.add(index++, line);
 		}
 
-		//styling closes
-		file.add(index++, "\t\t</styling>");
+		//styles closes
+		file.add(index++, "\t\t</styles>");
 
 		//head closes
 		file.add(index++, "\t</head>");

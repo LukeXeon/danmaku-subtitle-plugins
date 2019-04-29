@@ -117,7 +117,6 @@ public class ASSFormat extends Format {
 							while (!line.startsWith("Format:")) {
 								lineCounter++;
 								line = br.readLine().trim();
-								;
 							}
 						}
 						// we recover the format's fields
@@ -131,7 +130,7 @@ public class ASSFormat extends Format {
 								//we parse the style
 								style = parseStyleForASS(line.split(":")[1].trim().split(","), styleFormat, lineCounter, isASS, tto.warnings);
 								//and save the style
-								tto.styling.put(style.id, style);
+								tto.styles.put(style.id, style);
 							}
 							//next line
 							lineCounter++;
@@ -213,7 +212,7 @@ public class ASSFormat extends Format {
 		//we will write the lines in an ArrayList 
 		int index = 0;
 		//the minimum size of the file is the number of captions and styles + lines for sections and formats and the script info, so we'll take some extra space.
-		ArrayList<String> file = new ArrayList<>(30 + tto.styling.size() + tto.captions.size());
+		ArrayList<String> file = new ArrayList<>(30 + tto.styles.size() + tto.captions.size());
 
 		//header is placed
 		file.add(index++, "[Script Info]");
@@ -256,7 +255,7 @@ public class ASSFormat extends Format {
 		else
 			file.add(index++, "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, TertiaryColour, BackColour, Bold, Italic, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, AlphaLevel, Encoding");
 		//Next we iterate over the styles
-		for (Style style : tto.styling.values()) {
+		for (Style style : tto.styles.values()) {
 			String styleLine = "Style: ";
 			//new style
 			//name
@@ -487,11 +486,16 @@ public class ASSFormat extends Format {
 			//we go through every format parameter and save the interesting values
 			if (trimmedDialogueFormat.equalsIgnoreCase("Style")) {
 				//we save the style
-				Style s = tto.styling.get(line[i].trim());
-				if (s != null)
+				String styleName = line[i].trim();
+				Style s = tto.styles.get(styleName);
+				if (s == null && styleName.length() > 1 && styleName.charAt(0) == '*') {
+					s = tto.styles.get(styleName.substring(1));
+				}
+				if (s != null) {
 					newSection.style = s;
-				else
-					tto.warnings += "undefined style: " + line[i].trim() + "\n\n";
+				} else {
+					tto.warnings += "undefined style: " + styleName + "\n\n";
+				}
 			} else if (trimmedDialogueFormat.equalsIgnoreCase("Start")) {
 				//we save the starting time
 				newSection.start = new Time("h:mm:ss.cs", line[i].trim());

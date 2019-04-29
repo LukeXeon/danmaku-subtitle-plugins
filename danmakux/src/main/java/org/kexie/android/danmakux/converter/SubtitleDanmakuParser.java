@@ -1,11 +1,9 @@
 package org.kexie.android.danmakux.converter;
 
-import android.content.res.Resources;
+import android.content.Context;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.Log;
-
-import com.orhanobut.logger.Logger;
 
 import org.kexie.android.danmakux.format.Format;
 import org.kexie.android.danmakux.format.Section;
@@ -61,18 +59,17 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     }
 
     private static boolean checkType(Class<?> checkType, Type requestType) {
-        if (checkType == null
-                || Objects.equals(checkType.getClassLoader(),
-                Resources.class.getClassLoader())) {
-            return false;
-        }
-        for (Type type : checkType.getGenericInterfaces()) {
-            if (Objects.equals(type.getTypeName(),
-                    requestType.getTypeName())) {
-                return true;
+        ClassLoader bootClassLoader = Context.class.getClassLoader();
+        while (checkType != null && !Objects.equals(bootClassLoader, checkType.getClassLoader())) {
+            for (Type type : checkType.getGenericInterfaces()) {
+                if (Objects.equals(type.getTypeName(),
+                        requestType.getTypeName())) {
+                    return true;
+                }
             }
+            checkType = checkType.getSuperclass();
         }
-        return checkType(checkType.getSuperclass(), requestType);
+        return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -119,7 +116,6 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
 
     private BaseDanmaku
     toDanmaku(Map.Entry<Integer, Section> entry, FontScale fontScale) {
-        Logger.d(entry.getValue());
         Section section = entry.getValue();
         if (TextUtils.isEmpty(section.content)) {
             return null;

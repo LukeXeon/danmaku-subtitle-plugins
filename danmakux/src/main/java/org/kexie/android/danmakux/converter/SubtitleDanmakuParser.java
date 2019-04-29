@@ -1,12 +1,10 @@
 package org.kexie.android.danmakux.converter;
 
-import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.Log;
 
 import org.kexie.android.danmakux.format.Format;
 import org.kexie.android.danmakux.format.Section;
-import org.kexie.android.danmakux.format.Style;
 import org.kexie.android.danmakux.format.Subtitle;
 import org.mozilla.universalchardet.UniversalDetector;
 
@@ -24,7 +22,6 @@ import master.flame.danmaku.danmaku.model.IDanmakus;
 import master.flame.danmaku.danmaku.model.android.Danmakus;
 import master.flame.danmaku.danmaku.parser.BaseDanmakuParser;
 import master.flame.danmaku.danmaku.parser.IDataSource;
-import master.flame.danmaku.danmaku.util.DanmakuUtils;
 
 final class SubtitleDanmakuParser extends BaseDanmakuParser {
 
@@ -34,13 +31,6 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
 
     SubtitleDanmakuParser(Format format) {
         this.format = format;
-    }
-
-    //RRGGBBAA to AARRGGBB
-    private static int parseColor(String value) {
-        String rgb = value.substring(0, 6);
-        String a = value.substring(6);
-        return Integer.parseInt(a + rgb, 16);
     }
 
     private static Charset getCharset(InputStream input) throws IOException {
@@ -96,10 +86,10 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 Charset charset = getCharset(input);
                 Subtitle subtitle = format.parse("", input, charset);
                 Log.w(TAG, "parse: " + subtitle.warnings);
-                FontScale fontScale = FontScale.create(subtitle.styling.values());
+                TextStyleAdapter textStyleAdapter = TextStyleAdapter.create(subtitle.styling.values());
                 for (Map.Entry<Integer, Section> entry
                         : subtitle.captions.entrySet()) {
-                    BaseDanmaku danmaku = toDanmaku(entry, fontScale);
+                    BaseDanmaku danmaku = toDanmaku(entry, textStyleAdapter);
                     if (danmaku != null) {
                         danmakus.addItem(danmaku);
                     }
@@ -114,7 +104,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     }
 
     private BaseDanmaku
-    toDanmaku(Map.Entry<Integer, Section> entry, FontScale fontScale) {
+    toDanmaku(Map.Entry<Integer, Section> entry, TextStyleAdapter textStyleAdapter) {
         Section section = entry.getValue();
         if (TextUtils.isEmpty(section.content)) {
             return null;
@@ -129,29 +119,12 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 .mDanmakuFactory
                 .createDanmaku(BaseDanmaku.TYPE_FIX_BOTTOM, mContext);
         int id = entry.getKey();
-        Style style = section.style;
-        int textColor = style != null
-                && style.color != null
-                ? parseColor(style.color)
-                : Color.WHITE;
-        int backgroundColor = style != null
-                && style.backgroundColor != null
-                ? parseColor(style.backgroundColor)
-                : Color.BLACK;
-        int fontSize = fontScale.adapt(style != null
-                && style.fontSize != null
-                ? Float.parseFloat(style.fontSize)
-                : FontScale.MID_FONT_SIZE);
         item.setTime(start);
         item.duration = new Duration(duration);
         item.index = id;
-        item.textSize = fontSize;
-        item.textColor = textColor;
-        item.textShadowColor = backgroundColor;
         item.setTimer(mTimer);
-        String content = section.content.replaceAll("\\<br[ ]*/\\>", "/n");
-        DanmakuUtils.fillText(item, content);
         item.flags = mContext.mGlobalFlagValues;
+        textStyleAdapter.adapt(item, section);
         return item;
     }
 }

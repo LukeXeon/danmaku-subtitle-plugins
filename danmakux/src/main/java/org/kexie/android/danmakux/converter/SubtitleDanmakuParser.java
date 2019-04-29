@@ -1,6 +1,5 @@
 package org.kexie.android.danmakux.converter;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.text.TextUtils;
 import android.util.Log;
@@ -59,7 +58,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     }
 
     private static boolean checkType(Class<?> checkType, Type requestType) {
-        ClassLoader bootClassLoader = Context.class.getClassLoader();
+        ClassLoader bootClassLoader = String.class.getClassLoader();
         while (checkType != null && !Objects.equals(bootClassLoader, checkType.getClassLoader())) {
             for (Type type : checkType.getGenericInterfaces()) {
                 if (Objects.equals(type.getTypeName(),

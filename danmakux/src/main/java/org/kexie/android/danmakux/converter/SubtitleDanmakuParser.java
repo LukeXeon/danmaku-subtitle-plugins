@@ -22,6 +22,7 @@ import master.flame.danmaku.danmaku.model.IDanmakus;
 import master.flame.danmaku.danmaku.model.android.Danmakus;
 import master.flame.danmaku.danmaku.parser.BaseDanmakuParser;
 import master.flame.danmaku.danmaku.parser.IDataSource;
+import master.flame.danmaku.danmaku.util.IOUtils;
 
 final class SubtitleDanmakuParser extends BaseDanmakuParser {
 
@@ -99,6 +100,8 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 return danmakus;
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                IOUtils.closeQuietly(input);
             }
         }
         return null;

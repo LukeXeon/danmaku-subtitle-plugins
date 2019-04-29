@@ -6,7 +6,6 @@ import android.text.TextUtils;
 import org.kexie.android.danmakux.format.Section;
 import org.kexie.android.danmakux.format.Style;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import master.flame.danmaku.danmaku.model.BaseDanmaku;
@@ -49,7 +48,42 @@ final class TextStyleContext {
 
     BaseDanmaku newDanmaku(Section section) {
         Style style = section.style;
-        BaseDanmaku item = adaptNew(style, section.content);
+        BaseDanmaku item = newItem(style);
+        adapt(item, style, section.content);
+        return item;
+    }
+
+    private BaseDanmaku newItem(Style style) {
+        int type = BaseDanmaku.TYPE_FIX_BOTTOM;
+        if (style != null
+                && !TextUtils.isEmpty(style.alignment)
+                && style.alignment.contains("top")) {
+            type = BaseDanmaku.TYPE_FIX_TOP;
+        }
+        return context.mDanmakuFactory.createDanmaku(type, context);
+    }
+
+    private void adapt(BaseDanmaku item, Style style, String text) {
+        text = text.replaceAll("\\<br[ ]*/\\>", BaseDanmaku.DANMAKU_BR_CHAR);
+        //分割字符串
+        String[] lines = text.split(BaseDanmaku.DANMAKU_BR_CHAR, -1);
+        int[] lengths = new int[lines.length];
+        int maxLength = realLength(lines, lengths);
+        //调整对齐
+        adaptAlignment(style, lines, lengths, maxLength);
+        item.lines = lines;
+        //unit px
+        int textSize = adaptSize(style != null
+                && style.fontSize != null
+                ? Float.parseFloat(style.fontSize)
+                : MID_FONT_SIZE);
+        item.text = text;
+        item.textSize = adaptScreen(maxLength, textSize);
+        adaptColor(item, style);
+    }
+
+    //适配颜色
+    private static void adaptColor(BaseDanmaku item, Style style) {
         if (style == null) {
             item.textColor = Color.WHITE;
             item.textShadowColor = Color.BLACK;
@@ -61,80 +95,41 @@ final class TextStyleContext {
                     ? parseColor(style.backgroundColor)
                     : Color.BLACK;
         }
-        return item;
     }
 
-    private BaseDanmaku newItem(boolean nonNull, Style style) {
-        int type;
-        if (nonNull && !TextUtils.isEmpty(style.alignment)) {
-            if (style.alignment.contains("bottom")) {
-                type = BaseDanmaku.TYPE_FIX_BOTTOM;
-            } else if (style.alignment.contains("top")) {
-                type = BaseDanmaku.TYPE_FIX_TOP;
-            } else {
-                type = BaseDanmaku.TYPE_FIX_BOTTOM;
-            }
-        } else {
-            type = BaseDanmaku.TYPE_FIX_BOTTOM;
-        }
-        return context.mDanmakuFactory.createDanmaku(type, context);
-    }
-
-    private BaseDanmaku adaptNew(Style style, String text) {
-        boolean nonNull;
-        //unit px
-        int textSize = mappingToPxRange((nonNull = style != null)
-                && style.fontSize != null
-                ? Float.parseFloat(style.fontSize)
-                : MID_FONT_SIZE);
-        text = text.replaceAll("\\<br[ ]*/\\>", BaseDanmaku.DANMAKU_BR_CHAR);
-        BaseDanmaku item = newItem(nonNull, style);
-        item.text = text;
-        //分割字符串
-        String[] lines = text.split(BaseDanmaku.DANMAKU_BR_CHAR, -1);
-        int[] lengths = new int[lines.length];
-        //计算实际显示的最大值
-        //中文长度为2，英文长度为1
-        int maxLength = maxLineLength(lines, lengths);
-        //调整对齐
-        adaptAlignment(nonNull, style, lines, lengths, maxLength);
-        item.lines = lines;
-        item.textSize = adaptScreen(maxLength, textSize);
-        return item;
-    }
-
-    private static void adaptAlignment(
-            boolean nonNull,
-            Style style,
-            String[] lines,
-            int[] lengths,
-            int maxLength) {
+    // 适配对齐策略,因为弹幕没有自带的对齐策略,
+    // 所以这里我们选择在两边填充空白字符实现
+    private static void adaptAlignment(Style style,
+                                       String[] lines,
+                                       int[] lengths,
+                                       int maxLength) {
         for (int i = 0; i < lines.length; ++i) {
             int length = lengths[i];
             String line = lines[i];
             int padding = maxLength - length;
             if (padding > 0) {
+                boolean match = false;
                 StringBuilder builder = new StringBuilder(maxLength);
-                boolean bool = nonNull && !TextUtils.isEmpty(style.alignment);
-                if (bool && style.alignment.contains("right")) {
-                    char[] chars = new char[padding];
-                    Arrays.fill(chars, ' ');
-                    line = builder.append(line)
-                            .append(chars)
-                            .toString();
-                } else if (bool && style.alignment.contains("left")) {
-                    char[] chars = new char[padding];
-                    Arrays.fill(chars, ' ');
-                    line = builder.append(chars)
+                if (style != null && !TextUtils.isEmpty(style.alignment)) {
+                    if (style.alignment.contains("right")) {
+                        PaddingSequence paddingSequence = new PaddingSequence(padding);
+                        line = builder.append(line)
+                                .append(paddingSequence)
+                                .toString();
+                        match = true;
+                    } else if (style.alignment.contains("left")) {
+                        PaddingSequence paddingSequence = new PaddingSequence(padding);
+                        line = builder.append(paddingSequence)
+                                .append(line)
+                                .toString();
+                        match = true;
+                    }
+                }
+                if (!match) {
+                    PaddingSequence paddingSequence = new PaddingSequence(padding / 2);
+                    line = builder.append(paddingSequence)
                             .append(line)
-                            .toString();
-                } else {
-                    padding /= 2;
-                    char[] chars = new char[padding];
-                    Arrays.fill(chars, ' ');
-                    line = builder.append(chars)
-                            .append(line)
-                            .append(chars)
+                            .append(paddingSequence)
                             .toString();
                 }
                 lines[i] = line;
@@ -142,7 +137,9 @@ final class TextStyleContext {
         }
     }
 
-    private static int maxLineLength(String[] lines, int[] lengths) {
+    //计算实际显示的最大值
+    //如中文长度为2，英文和数字长度为1
+    private static int realLength(String[] lines, int[] lengths) {
         int maxLength = Integer.MIN_VALUE;
         for (int i = 0; i < lines.length; ++i) {
             String line = lines[i] = lines[i].trim();
@@ -167,13 +164,19 @@ final class TextStyleContext {
         return textSizePx > displayMaxSizePx ? displayMaxSizePx / maxLength : textSize;
     }
 
+    //是否为可显示的ascii码
     private static boolean isPrintableAscii(final char c) {
         final int asciiFirst = 0x20;
         final int asciiLast = 0x7E;  // included
         return (asciiFirst <= c && c <= asciiLast) || c == '\r' || c == '\n';
     }
 
-    private int mappingToPxRange(float value) {
+    /**
+     * 将字体大小映射到
+     * {@link TextStyleContext#MAX_FONT_SIZE}和{@link TextStyleContext#MIN_FONT_SIZE}
+     * 之间
+     */
+    private int adaptSize(float value) {
         float mid = mid(min, max);
         if (value > mid) {
             float delta = value - mid;
@@ -193,6 +196,7 @@ final class TextStyleContext {
         return (int) (value * display.getDensity() + 0.5f);
     }
 
+    //创建文本样式上下文对象
     static TextStyleContext
     create(Collection<Style> styles,
            IDisplayer display,

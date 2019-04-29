@@ -1,7 +1,8 @@
-package org.kexie.android.danmakux.converter;
+package org.kexie.android.danmakux.utils;
 
 import java.io.File;
 
+//方便获取问价扩展名的工具类
 @SuppressWarnings("WeakerAccess")
 public final class FileUtils {
     private FileUtils() {

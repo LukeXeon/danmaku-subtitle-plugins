@@ -6,6 +6,7 @@ import android.util.Log;
 import org.kexie.android.danmakux.format.Format;
 import org.kexie.android.danmakux.format.Section;
 import org.kexie.android.danmakux.format.Subtitle;
+import org.kexie.android.danmakux.utils.TypeToken;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.BufferedInputStream;
@@ -24,6 +25,9 @@ import master.flame.danmaku.danmaku.parser.BaseDanmakuParser;
 import master.flame.danmaku.danmaku.parser.IDataSource;
 import master.flame.danmaku.danmaku.util.IOUtils;
 
+/**
+ * 解析字幕文件的弹幕解析器,只支持{@link InputStream}
+ */
 final class SubtitleDanmakuParser extends BaseDanmakuParser {
 
     private final Format format;
@@ -34,7 +38,8 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         this.format = format;
     }
 
-    private static Charset getCharset(InputStream input) throws IOException {
+    //检测字符集
+    private static Charset bestGuessedCharset(InputStream input) throws IOException {
         input.mark(0);
         byte[] buffer = new byte[1024];
         UniversalDetector detector = new UniversalDetector(null);
@@ -48,9 +53,11 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         return charset == null ? Charset.defaultCharset() : Charset.forName(charset);
     }
 
-    private static boolean checkType(Class<?> checkType, Type requestType) {
+    //检查输入源
+    private static boolean checkSourceType(Class<?> checkType, Type requestType) {
         ClassLoader bootClassLoader = String.class.getClassLoader();
-        while (checkType != null && !Objects.equals(bootClassLoader, checkType.getClassLoader())) {
+        while (checkType != null
+                && !Objects.equals(bootClassLoader, checkType.getClassLoader())) {
             for (Type type : checkType.getGenericInterfaces()) {
                 if (Objects.equals(type.getTypeName(),
                         requestType.getTypeName())) {
@@ -62,13 +69,16 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         return false;
     }
 
+    /**
+     *获取输出,使用{@link BufferedInputStream}包装
+     */
     @SuppressWarnings("unchecked")
     private InputStream getInput() {
         IDataSource<?> source;
         if ((source = mDataSource) == null) {
             return null;
         }
-        if (!checkType(source.getClass(),
+        if (!checkSourceType(source.getClass(),
                 new TypeToken<IDataSource<InputStream>>() {
                 }.getType())) {
             return null;
@@ -84,7 +94,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         if (input != null) {
             Danmakus danmakus = new Danmakus();
             try {
-                Charset charset = getCharset(input);
+                Charset charset = bestGuessedCharset(input);
                 Subtitle subtitle = format.parse("", input, charset);
                 Log.w(TAG, "parse: " + subtitle.warnings);
                 TextStyleContext textStyleContext = TextStyleContext

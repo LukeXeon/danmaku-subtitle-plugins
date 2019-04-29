@@ -1,8 +1,9 @@
-package org.kexie.android.danmakux.converter;
+package org.kexie.android.danmakux.utils;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+//方便获取泛型类型的工具类
 @SuppressWarnings("WeakerAccess")
 public abstract class TypeToken<T> {
     private final Type type;

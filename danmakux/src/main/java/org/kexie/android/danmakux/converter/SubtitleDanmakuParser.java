@@ -82,8 +82,8 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     protected IDanmakus parse() {
         InputStream input = getInput();
         if (input != null) {
+            Danmakus danmakus = new Danmakus();
             try {
-                Danmakus danmakus = new Danmakus();
                 Charset charset = getCharset(input);
                 Subtitle subtitle = format.parse("", input, charset);
                 Log.w(TAG, "parse: " + subtitle.warnings);
@@ -97,12 +97,12 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                     }
                 }
                 Log.d(TAG, "parse: size=" + danmakus.size());
-                return danmakus;
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
                 IOUtils.closeQuietly(input);
             }
+            return danmakus;
         }
         return null;
     }

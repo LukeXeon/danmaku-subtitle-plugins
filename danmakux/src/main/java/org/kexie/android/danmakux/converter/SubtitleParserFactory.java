@@ -37,18 +37,20 @@ public final class SubtitleParserFactory {
     public static final String FORMAT_TTML = "ttml";
     public static final String FORMAT_DFXP = "dfxp";
 
-    private static final Map<String, Class<? extends Format>> sFormats;
+    private static final Map<String, Class<? extends Format>> sFormatsTable;
+    public static final Set<String> SUPPORT_FORMATS;
 
     static {
-        sFormats = new ArrayMap<>();
-        sFormats.put(FORMAT_ASS, ASSFormat.class);
-        sFormats.put(FORMAT_SSA, ASSFormat.class);
-        sFormats.put(FORMAT_SCC, SCCFormat.class);
-        sFormats.put(FORMAT_SRT, SRTFormat.class);
-        sFormats.put(FORMAT_STL, STLFormat.class);
-        sFormats.put(FORMAT_XML, XMLFormat.class);
-        sFormats.put(FORMAT_TTML, XMLFormat.class);
-        sFormats.put(FORMAT_DFXP, XMLFormat.class);
+        sFormatsTable = new ArrayMap<>();
+        sFormatsTable.put(FORMAT_ASS, ASSFormat.class);
+        sFormatsTable.put(FORMAT_SSA, ASSFormat.class);
+        sFormatsTable.put(FORMAT_SCC, SCCFormat.class);
+        sFormatsTable.put(FORMAT_SRT, SRTFormat.class);
+        sFormatsTable.put(FORMAT_STL, STLFormat.class);
+        sFormatsTable.put(FORMAT_XML, XMLFormat.class);
+        sFormatsTable.put(FORMAT_TTML, XMLFormat.class);
+        sFormatsTable.put(FORMAT_DFXP, XMLFormat.class);
+        SUPPORT_FORMATS = Collections.unmodifiableSet(sFormatsTable.keySet());
     }
 
     @Retention(RetentionPolicy.SOURCE)
@@ -72,7 +74,7 @@ public final class SubtitleParserFactory {
      * @return 返回解析器
      */
     public static BaseDanmakuParser forFormat(@NonNull @FormatType String ext) {
-        Class<? extends Format> type = sFormats.get(ext.toLowerCase());
+        Class<? extends Format> type = sFormatsTable.get(ext.toLowerCase());
         Format format = null;
         if (type != null) {
             try {
@@ -97,13 +99,5 @@ public final class SubtitleParserFactory {
         STLFormat format = new STLFormat();
         format.setFrameRate(frameRate);
         return new SubtitleDanmakuParser(format);
-    }
-
-    /**
-     * 所有支持的格式集合
-     * @return 返回一个不可变的集合
-     */
-    public static Set<String> getSupportFormats() {
-        return Collections.unmodifiableSet(sFormats.keySet());
     }
 }

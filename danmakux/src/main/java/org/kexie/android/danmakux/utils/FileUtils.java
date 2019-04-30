@@ -1,12 +1,35 @@
 package org.kexie.android.danmakux.utils;
 
-import java.io.File;
+import org.kexie.android.danmakux.converter.SubtitleParserFactory;
 
-//方便获取问价扩展名的工具类
+import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+
+//文件工具类
 @SuppressWarnings("WeakerAccess")
 public final class FileUtils {
     private FileUtils() {
         throw new AssertionError();
+    }
+
+    public static String getFileNameNoExtension(File file) {
+        if (file == null) return "";
+        return getFileNameNoExtension(file.getPath());
+    }
+
+    public static String getFileNameNoExtension(String filePath) {
+        if (isSpace(filePath)) return "";
+        int lastPoi = filePath.lastIndexOf('.');
+        int lastSep = filePath.lastIndexOf(File.separator);
+        if (lastSep == -1) {
+            return (lastPoi == -1 ? filePath : filePath.substring(0, lastPoi));
+        }
+        if (lastPoi == -1 || lastSep > lastPoi) {
+            return filePath.substring(lastSep + 1);
+        }
+        return filePath.substring(lastSep + 1, lastPoi);
     }
 
     public static String getFileExtension(File file) {
@@ -14,12 +37,6 @@ public final class FileUtils {
         return getFileExtension(file.getPath());
     }
 
-    /**
-     * Return the extension of file.
-     *
-     * @param filePath The path of file.
-     * @return the extension of file
-     */
     public static String getFileExtension(String filePath) {
         if (isSpace(filePath)) return "";
         int lastPoi = filePath.lastIndexOf('.');
@@ -36,5 +53,35 @@ public final class FileUtils {
             }
         }
         return true;
+    }
+
+    public static List<File> scan(File directory) {
+        if (directory == null || !directory.isDirectory()) {
+            throw new IllegalArgumentException();
+        }
+        List<File> files = new LinkedList<>();
+        for (String file : directory.list()) {
+            if (SubtitleParserFactory.SUPPORT_FORMATS
+                    .contains(getFileExtension(file))) {
+                files.add(new File(file));
+            }
+        }
+        return files;
+    }
+
+    public static List<File> getVideoSubtitles(File video) {
+        List<File> list = scan(video);
+        List<File> result = new LinkedList<>();
+        String name = getFileNameNoExtension(video);
+        for (File file : list) {
+            if (Objects.equals(getFileNameNoExtension(file), name)) {
+                result.add(file);
+            }
+        }
+        return result;
+    }
+
+    public static List<File> getVideoSubtitles(String video) {
+        return getVideoSubtitles(new File(video));
     }
 }

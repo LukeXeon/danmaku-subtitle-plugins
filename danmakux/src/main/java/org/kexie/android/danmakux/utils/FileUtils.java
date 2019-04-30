@@ -63,7 +63,7 @@ public final class FileUtils {
         for (String file : directory.list()) {
             if (SubtitleParserFactory.SUPPORT_FORMATS
                     .contains(getFileExtension(file))) {
-                files.add(new File(file));
+                files.add(new File(directory, file));
             }
         }
         return files;

@@ -13,7 +13,9 @@ import master.flame.danmaku.danmaku.model.IDisplayer;
 import master.flame.danmaku.danmaku.model.android.DanmakuContext;
 
 
-//文字样式的实现
+/**
+ * 文字样式的实现
+ */
 final class TextStyleContext {
 
     private final static float MAX_FONT_SIZE = 20;
@@ -24,11 +26,20 @@ final class TextStyleContext {
     private final IDisplayer display;
     private final DanmakuContext context;
 
-    //RRGGBBAA to AARRGGBB
-    private static int parseColor(String value) {
+    private static String convertColor(String value) {
         String rgb = value.substring(0, 6);
         String a = value.substring(6);
-        return Integer.parseInt(a + rgb, 16);
+        return a + rgb;
+    }
+
+    /**
+     * RRGGBBAA to AARRGGBB
+     *
+     * @param value RRGGBBAA Color String
+     * @return AARRGGBB Color int
+     */
+    private static int parseColor(String value) {
+        return Integer.parseInt(convertColor(value), 16);
     }
 
     private static float mid(float f1, float f2) {
@@ -55,8 +66,7 @@ final class TextStyleContext {
 
     private BaseDanmaku newItem(Style style) {
         int type = BaseDanmaku.TYPE_FIX_BOTTOM;
-        if (style != null
-                && !TextUtils.isEmpty(style.alignment)
+        if (style != null && !TextUtils.isEmpty(style.alignment)
                 && style.alignment.contains("top")) {
             type = BaseDanmaku.TYPE_FIX_TOP;
         }
@@ -64,22 +74,30 @@ final class TextStyleContext {
     }
 
     private void adapt(BaseDanmaku item, Style style, String text) {
-        text = text.replaceAll("\\<br[ ]*/\\>", BaseDanmaku.DANMAKU_BR_CHAR);
         //分割字符串
-        String[] lines = text.split(BaseDanmaku.DANMAKU_BR_CHAR, -1);
-        int[] lengths = new int[lines.length];
-        int maxLength = realLength(lines, lengths);
-        //调整对齐
-        adaptAlignment(style, lines, lengths, maxLength);
-        item.lines = lines;
+        String[] lines = text.split("\\<br[ ]*/\\>", -1);
+        int maxLength;
+        if (lines.length > 1) {
+            int[] lengths = new int[lines.length];
+            maxLength = maxLength(lines, lengths);
+            //调整对齐
+            adaptAlignment(style, lines, lengths, maxLength);
+            item.lines = lines;
+        } else {
+            maxLength = realLength(lines[0]);
+        }
         //unit px
         int textSize = adaptSize(style != null
                 && style.fontSize != null
                 ? Float.parseFloat(style.fontSize)
                 : MID_FONT_SIZE);
-        item.text = text;
+        adaptText(item, text);
         item.textSize = adaptScreen(maxLength, textSize);
         adaptColor(item, style);
+    }
+
+    private static void adaptText(BaseDanmaku item, String text) {
+        item.text = text.replaceAll("\\<br[ ]*/\\>", BaseDanmaku.DANMAKU_BR_CHAR);
     }
 
     //适配颜色
@@ -137,34 +155,52 @@ final class TextStyleContext {
         }
     }
 
-    //计算实际显示的最大值
-    //如中文长度为2，英文和数字长度为1
-    private static int realLength(String[] lines, int[] lengths) {
+    /**
+     * 计算实际显示的最大值
+     * 如中文长度为2，英文和数字长度为1
+     * @param line   所有的行
+     * @return 最长行的长度
+     */
+    private static int realLength(String line) {
+        int trueLength = 0;
+        int length = line.length();
+        for (int j = 0; j < length; ++j) {
+            char ch = line.charAt(j);
+            if (TextUtils.isGraphic(ch)) {
+                trueLength += isPrintableAscii(ch) ? 1 : 2;
+            }
+        }
+        return trueLength;
+    }
+
+    private static int maxLength(String[] lines, int[] lengths) {
         int maxLength = Integer.MIN_VALUE;
         for (int i = 0; i < lines.length; ++i) {
             String line = lines[i] = lines[i].trim();
-            int trueLength = 0;
-            int length = line.length();
-            for (int j = 0; j < length; ++j) {
-                char ch = line.charAt(j);
-                if (TextUtils.isGraphic(ch)) {
-                    trueLength += isPrintableAscii(ch) ? 1 : 2;
-                }
-            }
+            int trueLength = realLength(line);
             lengths[i] = trueLength;
             maxLength = Math.max(maxLength, trueLength);
         }
         return maxLength;
     }
 
-    //如果超出屏幕大小要重新调整
+    /**
+     * 如果超出屏幕大小要重新调整
+     *
+     * @param maxLength 最长行
+     * @param textSize  原本的字体大小px
+     * @return 调整过的字体大小
+     */
     private int adaptScreen(int maxLength, int textSize) {
         int displayMaxSizePx = Math.max(display.getWidth(), display.getHeight());
         int textSizePx = textSize * maxLength;
         return textSizePx > displayMaxSizePx ? displayMaxSizePx / maxLength : textSize;
     }
 
-    //是否为可显示的ascii码
+    /**
+     * @param c 字符
+     * @return 是否为可显示的ascii码
+     */
     private static boolean isPrintableAscii(final char c) {
         final int asciiFirst = 0x20;
         final int asciiLast = 0x7E;  // included
@@ -175,6 +211,9 @@ final class TextStyleContext {
      * 将字体大小映射到
      * {@link TextStyleContext#MAX_FONT_SIZE}和{@link TextStyleContext#MIN_FONT_SIZE}
      * 之间
+     *
+     * @param value dp
+     * @return 所占用的像素
      */
     private int adaptSize(float value) {
         float mid = mid(min, max);
@@ -192,11 +231,24 @@ final class TextStyleContext {
         return dp2px(value);
     }
 
+    /**
+     * dpz转px
+     *
+     * @param value dp
+     * @return px
+     */
     private int dp2px(float value) {
         return (int) (value * display.getDensity() + 0.5f);
     }
 
-    //创建文本样式上下文对象
+    /**
+     * 创建文本样式上下文对象
+     *
+     * @param styles  样式集合
+     * @param display 所使用的屏幕信息
+     * @param context 弹幕上下文
+     * @return 新的样式上下文对象
+     */
     static TextStyleContext
     create(Collection<Style> styles,
            IDisplayer display,

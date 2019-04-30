@@ -8,7 +8,6 @@ import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -17,7 +16,9 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
+import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.Menu;
@@ -30,9 +31,6 @@ import org.kexie.android.danmakux.converter.SubtitleParserFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -51,7 +49,6 @@ import master.flame.danmaku.danmaku.model.android.Danmakus;
 import master.flame.danmaku.danmaku.model.android.SpannedCacheStuffer;
 import master.flame.danmaku.danmaku.parser.BaseDanmakuParser;
 import master.flame.danmaku.danmaku.parser.IDataSource;
-import master.flame.danmaku.danmaku.util.IOUtils;
 import master.flame.danmaku.danmaku.util.SystemClock;
 
 public class MainActivity extends Activity implements View.OnClickListener {
@@ -87,39 +84,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
         @Override
         public void prepareDrawing(final BaseDanmaku danmaku, boolean fromWorkerThread) {
             if (danmaku.text instanceof Spanned) { // 根据你的条件检查是否需要需要更新弹幕
-                // FIXME 这里只是简单启个线程来加载远程url图片，请使用你自己的异步线程池，最好加上你的缓存池
-                new Thread() {
+                if(mDanmakuView != null) {
 
-                    @Override
-                    public void run() {
-                        String url = "http://www.bilibili.com/favicon.ico";
-                        InputStream inputStream = null;
-                        Drawable drawable = mDrawable;
-                        if(drawable == null) {
-                            try {
-                                URLConnection urlConnection = new URL(url).openConnection();
-                                inputStream = urlConnection.getInputStream();
-                                drawable = BitmapDrawable.createFromStream(inputStream, "bitmap");
-                                mDrawable = drawable;
-                            } catch (MalformedURLException e) {
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } finally {
-                                IOUtils.closeQuietly(inputStream);
-                            }
-                        }
-                        if (drawable != null) {
-                            drawable.setBounds(0, 0, 100, 100);
-                            SpannableStringBuilder spannable = createSpannable(drawable);
-                            danmaku.text = spannable;
-                            if(mDanmakuView != null) {
-                                mDanmakuView.invalidateDanmaku(danmaku, false);
-                            }
-                            return;
-                        }
-                    }
-                }.start();
+                    mDanmakuView.invalidateDanmaku(danmaku, false);
+                }
             }
         }
 

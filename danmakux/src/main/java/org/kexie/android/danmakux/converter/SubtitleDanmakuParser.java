@@ -57,6 +57,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     private static boolean checkSourceType(Class<?> checkType, Type requestType) {
         ClassLoader bootClassLoader = String.class.getClassLoader();
         while (checkType != null
+                && IDataSource.class.isAssignableFrom(checkType)
                 && !Objects.equals(bootClassLoader, checkType.getClassLoader())) {
             for (Type type : checkType.getGenericInterfaces()) {
                 if (Objects.equals(type.getTypeName(),

@@ -10,7 +10,9 @@ import org.kexie.android.danmakux.format.SCCFormat;
 import org.kexie.android.danmakux.format.SRTFormat;
 import org.kexie.android.danmakux.format.STLFormat;
 import org.kexie.android.danmakux.format.XMLFormat;
+import org.kexie.android.danmakux.utils.FileUtils;
 
+import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -63,6 +65,12 @@ public final class SubtitleParserFactory {
 
     private static final String TAG = "DanmakuParserFactory";
 
+    /**
+     * 从指定格式产生,你可以使用{@link FileUtils#getFileExtension(File)}
+     * 来获取文件格式
+     * @param ext 文件格式
+     * @return 返回解析器
+     */
     public static BaseDanmakuParser forFormat(@NonNull @FormatType String ext) {
         Class<? extends Format> type = sFormats.get(ext.toLowerCase());
         Format format = null;
@@ -79,12 +87,22 @@ public final class SubtitleParserFactory {
         return new SubtitleDanmakuParser(format);
     }
 
+    /**
+     * 产生一个解析{@link SubtitleParserFactory#FORMAT_STL}格式的解析器
+     *
+     * @param frameRate 帧率
+     * @return STL格式解析器
+     */
     public static BaseDanmakuParser forFrameRate(float frameRate) {
         STLFormat format = new STLFormat();
         format.setFrameRate(frameRate);
         return new SubtitleDanmakuParser(format);
     }
 
+    /**
+     * 所有支持的格式集合
+     * @return 返回一个不可变的集合
+     */
     public static Set<String> getSupportFormats() {
         return Collections.unmodifiableSet(sFormats.keySet());
     }

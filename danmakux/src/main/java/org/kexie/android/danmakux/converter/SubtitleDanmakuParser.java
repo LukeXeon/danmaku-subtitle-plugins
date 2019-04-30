@@ -1,5 +1,6 @@
 package org.kexie.android.danmakux.converter;
 
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -62,13 +63,21 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 && IDataSource.class.isAssignableFrom(checkType)
                 && !Objects.equals(bootClassLoader, checkType.getClassLoader())) {
             for (Type type : checkType.getGenericInterfaces()) {
-                if (Objects.equals(type.toString(), requestType.toString())) {
+                if (deepEqualsType(type, requestType)) {
                     return true;
                 }
             }
             checkType = checkType.getSuperclass();
         }
         return false;
+    }
+
+    //把所有可能的手段都用上
+    private static boolean deepEqualsType(Type type1, Type type2) {
+        return Objects.deepEquals(type1, type2)
+                || Objects.equals(type1.toString(), type2.toString())
+                || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
+                && Objects.equals(type1.getTypeName(), type2.getTypeName()));
     }
 
     /**
@@ -92,7 +101,6 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
 
     @Override
     protected IDanmakus parse() {
-        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         InputStream input = getInput();
         if (input != null) {
             Danmakus danmakus = new Danmakus();

@@ -14,9 +14,9 @@ import master.flame.danmaku.danmaku.model.android.DanmakuContext;
 
 
 /**
- * 文字样式的实现
+ * 字幕的弹幕样式上下文对象
  */
-final class TextContext {
+final class DanmakuStyleContext {
 
     private final static float MAX_FONT_SIZE = 20;
     private final static float MIN_FONT_SIZE = 15;
@@ -46,7 +46,7 @@ final class TextContext {
         return (f1 + f2) / 2f;
     }
 
-    private TextContext(
+    private DanmakuStyleContext(
             float max,
             float min,
             IDisplayer display,
@@ -70,7 +70,10 @@ final class TextContext {
                 && style.alignment.contains("top")) {
             type = BaseDanmaku.TYPE_FIX_TOP;
         }
-        return context.mDanmakuFactory.createDanmaku(type, context);
+        BaseDanmaku item = context.mDanmakuFactory
+                .createDanmaku(type, context);
+        item.padding = 20;
+        return item;
     }
 
     private void adapt(BaseDanmaku item, Style style, String text) {
@@ -209,10 +212,10 @@ final class TextContext {
 
     /**
      * 将字体大小映射到
-     * {@link TextContext#MAX_FONT_SIZE}和{@link TextContext#MIN_FONT_SIZE}
+     * {@link DanmakuStyleContext#MAX_FONT_SIZE}和{@link DanmakuStyleContext#MIN_FONT_SIZE}
      * 之间
      *
-     * @param value dp
+     * @param value sp
      * @return 所占用的像素
      */
     private int adaptSize(float value) {
@@ -228,17 +231,17 @@ final class TextContext {
         } else {
             value = MID_FONT_SIZE;
         }
-        return dp2px(value);
+        return sp2px(value);
     }
 
     /**
-     * dpz转px
+     * sp转px
      *
-     * @param value dp
+     * @param value sp
      * @return px
      */
-    private int dp2px(float value) {
-        return (int) (value * display.getDensity() + 0.5f);
+    private int sp2px(float value) {
+        return (int) (value * display.getScaledDensity() + 0.5f);
     }
 
     /**
@@ -249,12 +252,12 @@ final class TextContext {
      * @param context 弹幕上下文
      * @return 新的样式上下文对象
      */
-    static TextContext
+    static DanmakuStyleContext
     create(Collection<Style> styles,
            IDisplayer display,
            DanmakuContext context) {
         if (styles.isEmpty()) {
-            return new TextContext(MAX_FONT_SIZE, MIN_FONT_SIZE, display, context);
+            return new DanmakuStyleContext(MAX_FONT_SIZE, MIN_FONT_SIZE, display, context);
         }
         float min = Float.MIN_VALUE, max = Float.MIN_VALUE;
         for (Style style : styles) {
@@ -265,6 +268,6 @@ final class TextContext {
                 min = Math.min(min, size);
             }
         }
-        return new TextContext(max, min, display, context);
+        return new DanmakuStyleContext(max, min, display, context);
     }
 }

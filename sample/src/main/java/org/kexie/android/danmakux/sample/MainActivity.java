@@ -16,15 +16,14 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextPaint;
-import android.text.style.AbsoluteSizeSpan;
 import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.PopupWindow;
+import android.widget.SeekBar;
 import android.widget.VideoView;
 
 import org.kexie.android.danmakux.converter.SubtitleParserFactory;
@@ -74,6 +73,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Button mBtnSendDanmaku;
 
     private Button mBtnSendDanmakuTextAndImage;
+
+    private SeekBar mSeekBar;
 
     private Button mBtnSendDanmakus;
     private DanmakuContext mContext;
@@ -156,7 +157,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void findViews() {
-
+        mSeekBar = findViewById(R.id.seek);
         mMediaController = findViewById(R.id.media_controller);
         mBtnRotate = findViewById(R.id.rotate);
         mBtnHideDanmaku = findViewById(R.id.btn_hide);
@@ -175,6 +176,23 @@ public class MainActivity extends Activity implements View.OnClickListener {
         mBtnSendDanmaku.setOnClickListener(this);
         mBtnSendDanmakuTextAndImage.setOnClickListener(this);
         mBtnSendDanmakus.setOnClickListener(this);
+
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mDanmakuView.seekTo(Math.round((double) progress / 100d * 2d * 60d * 60d * 1000d));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         // VideoView
         VideoView mVideoView = findViewById(R.id.videoview);

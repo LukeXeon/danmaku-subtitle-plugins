@@ -6,13 +6,14 @@ import android.util.Log;
 import org.kexie.android.danmakux.format.Format;
 import org.kexie.android.danmakux.format.Section;
 import org.kexie.android.danmakux.format.Subtitle;
+import org.kexie.android.danmakux.io.Jdk18BufferedInputStream;
 import org.kexie.android.danmakux.utils.TypeToken;
 import org.mozilla.universalchardet.UniversalDetector;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Objects;
@@ -42,6 +43,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     private static Charset bestGuessedCharset(InputStream input) throws IOException {
         input.mark(0);
         byte[] buffer = new byte[1024];
+        ByteBuffer.allocateDirect(1024);
         UniversalDetector detector = new UniversalDetector(null);
         int length;
         while ((length = input.read(buffer)) > 0 && !detector.isDone()) {
@@ -60,8 +62,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 && IDataSource.class.isAssignableFrom(checkType)
                 && !Objects.equals(bootClassLoader, checkType.getClassLoader())) {
             for (Type type : checkType.getGenericInterfaces()) {
-                if (Objects.equals(type.getTypeName(),
-                        requestType.getTypeName())) {
+                if (Objects.equals(type.toString(), requestType.toString())) {
                     return true;
                 }
             }
@@ -71,7 +72,8 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     }
 
     /**
-     *获取输出,使用{@link BufferedInputStream}包装
+     * 获取输出,使用{@link Jdk18BufferedInputStream}包装
+     * 低版本的{@link java.io.BufferedInputStream}可能有问题
      */
     @SuppressWarnings("unchecked")
     private InputStream getInput() {
@@ -85,24 +87,25 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
             return null;
         }
         IDataSource<InputStream> dataSource = (IDataSource<InputStream>) source;
-        InputStream input = dataSource.data();
-        return new BufferedInputStream(input);
+        return new Jdk18BufferedInputStream(dataSource.data());
     }
 
     @Override
     protected IDanmakus parse() {
+        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         InputStream input = getInput();
         if (input != null) {
             Danmakus danmakus = new Danmakus();
             try {
                 Charset charset = bestGuessedCharset(input);
+                Log.d(TAG, "parse: begin parse");
                 Subtitle subtitle = format.parse("", input, charset);
                 Log.w(TAG, "parse: " + subtitle.warnings);
-                TextContext textContext = TextContext
+                DanmakuStyleContext context = DanmakuStyleContext
                         .create(subtitle.styles.values(), getDisplayer(), mContext);
                 for (Map.Entry<Integer, Section> entry
                         : subtitle.captions.entrySet()) {
-                    BaseDanmaku danmaku = toDanmaku(entry, textContext);
+                    BaseDanmaku danmaku = toDanmaku(entry, context);
                     if (danmaku != null) {
                         danmakus.addItem(danmaku);
                     }
@@ -119,7 +122,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     }
 
     private BaseDanmaku
-    toDanmaku(Map.Entry<Integer, Section> entry, TextContext context) {
+    toDanmaku(Map.Entry<Integer, Section> entry, DanmakuStyleContext context) {
         Section section = entry.getValue();
         if (TextUtils.isEmpty(section.content)) {
             return null;

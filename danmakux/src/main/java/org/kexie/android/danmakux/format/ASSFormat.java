@@ -57,7 +57,7 @@ public class ASSFormat extends Format {
 		String[] styleFormat;
 		String[] dialogueFormat;
 
-		//first lets loadDataSource the file
+		//first lets load the file
 		InputStreamReader in = new InputStreamReader(is, isCharset);
 		BufferedReader br = new BufferedReader(in);
 

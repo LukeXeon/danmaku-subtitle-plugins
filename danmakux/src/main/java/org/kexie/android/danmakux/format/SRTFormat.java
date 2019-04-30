@@ -49,7 +49,7 @@ public class SRTFormat extends Format {
 		int captionNumber = 1;
 		boolean allGood;
 
-		//first lets loadDataSource the file
+		//first lets load the file
 		InputStreamReader in = new InputStreamReader(is, isCharset);
 		BufferedReader br = new BufferedReader(in);
 

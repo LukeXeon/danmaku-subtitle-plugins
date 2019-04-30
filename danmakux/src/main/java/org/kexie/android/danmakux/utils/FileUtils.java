@@ -3,8 +3,6 @@ package org.kexie.android.danmakux.utils;
 import org.kexie.android.danmakux.converter.SubtitleParserFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -59,7 +57,7 @@ public final class FileUtils {
         return true;
     }
 
-    public static List<File> scanDirectory(File directory) {
+    public static List<File> listSubtitles(File directory) {
         if (directory == null || !directory.isDirectory()) {
             throw new IllegalArgumentException();
         }
@@ -73,8 +71,8 @@ public final class FileUtils {
         return files.isEmpty() ? Collections.emptyList() : files;
     }
 
-    public static List<File> getVideoSubtitles(File video) {
-        List<File> list = scanDirectory(video.getParentFile());
+    public static List<File> getAttachedSubtitles(File video) {
+        List<File> list = listSubtitles(video.getParentFile());
         List<File> result = new LinkedList<>();
         String name = getFileNameNoExtension(video);
         for (File file : list) {
@@ -85,28 +83,8 @@ public final class FileUtils {
         return result.isEmpty() ? Collections.emptyList() : result;
     }
 
-    public static List<File> getVideoSubtitles(String video) {
-        return getVideoSubtitles(new File(video));
+    public static List<File> getAttachedSubtitles(String video) {
+        return getAttachedSubtitles(new File(video));
     }
 
-    public static FormattedDataSource loadDataSource(File file)
-            throws FileNotFoundException {
-        FormattedDataSource result = null;
-        FileNotFoundException exception = null;
-        if (file != null && file.isFile()) {
-            String format = getFileExtension(file);
-            if (SubtitleParserFactory.SUPPORT_FORMATS.contains(format)) {
-                try {
-                    FileInputStream inputStream = new FileInputStream(file);
-                    result = new FormattedDataSource(format, inputStream);
-                } catch (FileNotFoundException e) {
-                    exception = e;
-                }
-            }
-        }
-        if (result == null) {
-            throw (exception == null ? new FileNotFoundException() : exception);
-        }
-        return result;
-    }
 }

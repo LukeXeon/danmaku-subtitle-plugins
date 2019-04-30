@@ -1,7 +1,6 @@
 package org.kexie.android.danmakux.converter;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.StringDef;
 import android.util.ArrayMap;
 
 import org.kexie.android.danmakux.format.ASSFormat;
@@ -11,12 +10,10 @@ import org.kexie.android.danmakux.format.SRTFormat;
 import org.kexie.android.danmakux.format.STLFormat;
 import org.kexie.android.danmakux.format.XMLFormat;
 import org.kexie.android.danmakux.utils.FileUtils;
-import org.kexie.android.danmakux.utils.FormattedDataSource;
+import org.kexie.android.danmakux.io.FormattedDataSource;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -53,18 +50,6 @@ public final class SubtitleParserFactory {
         sFormatsTable.put(FORMAT_TTML, XMLFormat.class);
         sFormatsTable.put(FORMAT_DFXP, XMLFormat.class);
         SUPPORT_FORMATS = Collections.unmodifiableSet(sFormatsTable.keySet());
-    }
-
-    @Retention(RetentionPolicy.SOURCE)
-    @StringDef({FORMAT_ASS,
-            FORMAT_SSA,
-            FORMAT_SCC,
-            FORMAT_SRT,
-            FORMAT_STL,
-            FORMAT_XML,
-            FORMAT_TTML,
-            FORMAT_DFXP})
-    private @interface FormatType {
     }
 
     /**
@@ -104,12 +89,11 @@ public final class SubtitleParserFactory {
 
     public static BaseDanmakuParser forDataSource(FormattedDataSource dataSource) {
         BaseDanmakuParser parser = forFormat(dataSource.getFormat());
-        parser.load(dataSource);
-        return parser;
+        return parser.load(dataSource);
     }
 
     public static BaseDanmakuParser forFile(File file) throws FileNotFoundException {
-        FormattedDataSource dataSource = FileUtils.loadDataSource(file);
+        FormattedDataSource dataSource = FormattedDataSource.load(file);
         return forDataSource(dataSource);
     }
 }

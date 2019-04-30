@@ -1,6 +1,4 @@
-package org.kexie.android.danmakux.converter;
-
-import android.support.annotation.RestrictTo;
+package org.kexie.android.danmakux.utils;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -12,8 +10,7 @@ public final class FormattedDataSource implements IDataSource<InputStream> {
     private final String format;
     private final FileInputStream input;
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public FormattedDataSource(String format, FileInputStream input) {
+    FormattedDataSource(String format, FileInputStream input) {
         this.format = format;
         this.input = input;
     }

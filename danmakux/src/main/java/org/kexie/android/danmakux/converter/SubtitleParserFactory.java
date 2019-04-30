@@ -11,8 +11,10 @@ import org.kexie.android.danmakux.format.SRTFormat;
 import org.kexie.android.danmakux.format.STLFormat;
 import org.kexie.android.danmakux.format.XMLFormat;
 import org.kexie.android.danmakux.utils.FileUtils;
+import org.kexie.android.danmakux.utils.FormattedDataSource;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
@@ -106,7 +108,7 @@ public final class SubtitleParserFactory {
         return parser;
     }
 
-    public static BaseDanmakuParser forFile(File file) {
+    public static BaseDanmakuParser forFile(File file) throws FileNotFoundException {
         FormattedDataSource dataSource = FileUtils.loadDataSource(file);
         return forDataSource(dataSource);
     }

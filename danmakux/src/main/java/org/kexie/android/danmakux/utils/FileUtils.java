@@ -1,6 +1,5 @@
 package org.kexie.android.danmakux.utils;
 
-import org.kexie.android.danmakux.converter.FormattedDataSource;
 import org.kexie.android.danmakux.converter.SubtitleParserFactory;
 
 import java.io.File;

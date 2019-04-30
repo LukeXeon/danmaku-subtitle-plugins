@@ -55,7 +55,7 @@ public final class FileUtils {
         return true;
     }
 
-    public static List<File> scan(File directory) {
+    public static List<File> scanDirectory(File directory) {
         if (directory == null || !directory.isDirectory()) {
             throw new IllegalArgumentException();
         }
@@ -70,7 +70,7 @@ public final class FileUtils {
     }
 
     public static List<File> getVideoSubtitles(File video) {
-        List<File> list = scan(video);
+        List<File> list = scanDirectory(video.getParentFile());
         List<File> result = new LinkedList<>();
         String name = getFileNameNoExtension(video);
         for (File file : list) {

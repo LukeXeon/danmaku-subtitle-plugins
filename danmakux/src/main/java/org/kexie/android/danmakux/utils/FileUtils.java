@@ -90,9 +90,10 @@ public final class FileUtils {
         return getVideoSubtitles(new File(video));
     }
 
-    public static FormattedDataSource loadDataSource(File file) {
+    public static FormattedDataSource loadDataSource(File file)
+            throws FileNotFoundException {
         FormattedDataSource result = null;
-        RuntimeException exception = null;
+        FileNotFoundException exception = null;
         if (file != null && file.isFile()) {
             String format = getFileExtension(file);
             if (SubtitleParserFactory.SUPPORT_FORMATS.contains(format)) {
@@ -100,12 +101,12 @@ public final class FileUtils {
                     FileInputStream inputStream = new FileInputStream(file);
                     result = new FormattedDataSource(format, inputStream);
                 } catch (FileNotFoundException e) {
-                    exception = new IllegalArgumentException(e);
+                    exception = e;
                 }
             }
         }
         if (result == null) {
-            throw (exception == null ? new IllegalArgumentException() : exception);
+            throw (exception == null ? new FileNotFoundException() : exception);
         }
         return result;
     }

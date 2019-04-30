@@ -98,11 +98,11 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 Charset charset = bestGuessedCharset(input);
                 Subtitle subtitle = format.parse("", input, charset);
                 Log.w(TAG, "parse: " + subtitle.warnings);
-                TextStyleContext textStyleContext = TextStyleContext
+                TextContext textContext = TextContext
                         .create(subtitle.styles.values(), getDisplayer(), mContext);
                 for (Map.Entry<Integer, Section> entry
                         : subtitle.captions.entrySet()) {
-                    BaseDanmaku danmaku = toDanmaku(entry, textStyleContext);
+                    BaseDanmaku danmaku = toDanmaku(entry, textContext);
                     if (danmaku != null) {
                         danmakus.addItem(danmaku);
                     }
@@ -119,7 +119,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     }
 
     private BaseDanmaku
-    toDanmaku(Map.Entry<Integer, Section> entry, TextStyleContext context) {
+    toDanmaku(Map.Entry<Integer, Section> entry, TextContext context) {
         Section section = entry.getValue();
         if (TextUtils.isEmpty(section.content)) {
             return null;

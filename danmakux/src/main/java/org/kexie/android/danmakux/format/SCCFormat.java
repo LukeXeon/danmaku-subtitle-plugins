@@ -54,7 +54,7 @@ public class SCCFormat extends Format {
 		boolean italics = false;
 		String color = null;
 
-		//first lets load the file
+		//first lets loadDataSource the file
 		BufferedReader br = new BufferedReader(new InputStreamReader(is, isCharset));
 
 		//the file name is saved

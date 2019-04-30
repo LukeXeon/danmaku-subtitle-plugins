@@ -16,7 +16,7 @@ import master.flame.danmaku.danmaku.model.android.DanmakuContext;
 /**
  * 文字样式的实现
  */
-final class TextStyleContext {
+final class TextContext {
 
     private final static float MAX_FONT_SIZE = 20;
     private final static float MIN_FONT_SIZE = 15;
@@ -46,7 +46,7 @@ final class TextStyleContext {
         return (f1 + f2) / 2f;
     }
 
-    private TextStyleContext(
+    private TextContext(
             float max,
             float min,
             IDisplayer display,
@@ -209,7 +209,7 @@ final class TextStyleContext {
 
     /**
      * 将字体大小映射到
-     * {@link TextStyleContext#MAX_FONT_SIZE}和{@link TextStyleContext#MIN_FONT_SIZE}
+     * {@link TextContext#MAX_FONT_SIZE}和{@link TextContext#MIN_FONT_SIZE}
      * 之间
      *
      * @param value dp
@@ -249,12 +249,12 @@ final class TextStyleContext {
      * @param context 弹幕上下文
      * @return 新的样式上下文对象
      */
-    static TextStyleContext
+    static TextContext
     create(Collection<Style> styles,
            IDisplayer display,
            DanmakuContext context) {
         if (styles.isEmpty()) {
-            return new TextStyleContext(MAX_FONT_SIZE, MIN_FONT_SIZE, display, context);
+            return new TextContext(MAX_FONT_SIZE, MIN_FONT_SIZE, display, context);
         }
         float min = Float.MIN_VALUE, max = Float.MIN_VALUE;
         for (Style style : styles) {
@@ -265,6 +265,6 @@ final class TextStyleContext {
                 min = Math.min(min, size);
             }
         }
-        return new TextStyleContext(max, min, display, context);
+        return new TextContext(max, min, display, context);
     }
 }

@@ -1,8 +1,12 @@
 package org.kexie.android.danmakux.utils;
 
+import org.kexie.android.danmakux.converter.FormattedDataSource;
 import org.kexie.android.danmakux.converter.SubtitleParserFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -10,6 +14,7 @@ import java.util.Objects;
 //文件工具类
 @SuppressWarnings("WeakerAccess")
 public final class FileUtils {
+
     private FileUtils() {
         throw new AssertionError();
     }
@@ -66,7 +71,7 @@ public final class FileUtils {
                 files.add(new File(directory, file));
             }
         }
-        return files;
+        return files.isEmpty() ? Collections.emptyList() : files;
     }
 
     public static List<File> getVideoSubtitles(File video) {
@@ -78,10 +83,30 @@ public final class FileUtils {
                 result.add(file);
             }
         }
-        return result;
+        return result.isEmpty() ? Collections.emptyList() : result;
     }
 
     public static List<File> getVideoSubtitles(String video) {
         return getVideoSubtitles(new File(video));
+    }
+
+    public static FormattedDataSource loadDataSource(File file) {
+        FormattedDataSource result = null;
+        RuntimeException exception = null;
+        if (file != null && file.isFile()) {
+            String format = getFileExtension(file);
+            if (SubtitleParserFactory.SUPPORT_FORMATS.contains(format)) {
+                try {
+                    FileInputStream inputStream = new FileInputStream(file);
+                    result = new FormattedDataSource(format, inputStream);
+                } catch (FileNotFoundException e) {
+                    exception = new IllegalArgumentException(e);
+                }
+            }
+        }
+        if (result == null) {
+            throw (exception == null ? new IllegalArgumentException() : exception);
+        }
+        return result;
     }
 }

@@ -65,11 +65,10 @@ public final class SubtitleParserFactory {
     private @interface FormatType {
     }
 
-    private static final String TAG = "DanmakuParserFactory";
-
     /**
      * 从指定格式产生,你可以使用{@link FileUtils#getFileExtension(File)}
      * 来获取文件格式
+     *
      * @param ext 文件格式
      * @return 返回解析器
      */
@@ -99,5 +98,16 @@ public final class SubtitleParserFactory {
         STLFormat format = new STLFormat();
         format.setFrameRate(frameRate);
         return new SubtitleDanmakuParser(format);
+    }
+
+    public static BaseDanmakuParser forDataSource(FormattedDataSource dataSource) {
+        BaseDanmakuParser parser = forFormat(dataSource.getFormat());
+        parser.load(dataSource);
+        return parser;
+    }
+
+    public static BaseDanmakuParser forFile(File file) {
+        FormattedDataSource dataSource = FileUtils.loadDataSource(file);
+        return forDataSource(dataSource);
     }
 }

@@ -39,7 +39,7 @@ import java.util.Iterator;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SCCFormat extends Format {
 
-	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
+	public Subtitle parse(String fileName, InputStream input, Charset charset) throws IOException, FormatException {
 
 		Subtitle tto = new Subtitle();
 		Section newSection = null;
@@ -55,7 +55,7 @@ public class SCCFormat extends Format {
 		String color = null;
 
 		//first lets load the file
-		BufferedReader br = new BufferedReader(new InputStreamReader(is, isCharset));
+		BufferedReader br = new BufferedReader(new InputStreamReader(input, charset));
 
 		//the file name is saved
 		tto.fileName = fileName;
@@ -69,7 +69,7 @@ public class SCCFormat extends Format {
 			//the file must start with the type declaration
 			if (!br.readLine().trim().equalsIgnoreCase("Scenarist_SCC V1.0")) {
 				//this is a fatal parsing error.
-				throw new FatalParsingException("The fist line should define the file type: \"Scenarist_SCC V1.0\"");
+				throw new FormatException("The fist line should define the file type: \"Scenarist_SCC V1.0\"");
 
 			} else {
 
@@ -369,7 +369,7 @@ public class SCCFormat extends Format {
 			tto.warnings += "unexpected end of file at line " + lineCounter + ", maybe last caption is not complete.\n\n";
 		} finally {
 			//we close the reader
-			is.close();
+			input.close();
 		}
 
 		tto.built = true;
@@ -377,7 +377,7 @@ public class SCCFormat extends Format {
 	}
 
 
-	public String[] toFile(Subtitle tto) {
+	public String[] transformation(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)

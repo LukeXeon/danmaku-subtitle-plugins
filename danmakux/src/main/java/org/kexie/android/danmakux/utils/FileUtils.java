@@ -1,6 +1,6 @@
 package org.kexie.android.danmakux.utils;
 
-import org.kexie.android.danmakux.converter.SubtitleParserFactory;
+import org.kexie.android.danmakux.format.Format;
 
 import java.io.File;
 import java.util.Collections;
@@ -66,7 +66,7 @@ public final class FileUtils {
         }
         List<File> files = new LinkedList<>();
         for (String file : directory.list()) {
-            if (SubtitleParserFactory.SUPPORT_FORMATS
+            if (Format.SUPPORT_FORMATS
                     .contains(getFileExtension(file))) {
                 files.add(new File(directory, file));
             }

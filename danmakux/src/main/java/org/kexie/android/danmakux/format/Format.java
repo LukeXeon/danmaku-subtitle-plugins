@@ -1,10 +1,14 @@
 package org.kexie.android.danmakux.format;
 
 import android.support.annotation.RestrictTo;
+import android.util.ArrayMap;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This class specifies the interface for any format supported by the converter, these formats must
@@ -34,38 +38,83 @@ import java.nio.charset.Charset;
  *
  */
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@SuppressWarnings("WeakerAccess")
 public abstract class Format {
 
-	/**
-	 * This methods receives the path to a file, parses it, and returns a TimedTextObject
-	 *
-	 * @param fileName String that contains the path to the file
-	 * @return TimedTextObject representing the parsed file
-	 * @throws IOException when having trouble reading the file from the given path
-	 */
-	public final Subtitle parse(String fileName, InputStream is) throws IOException, FatalParsingException {
-		return parse(fileName, is, Charset.defaultCharset());
-	}
+    public static final String FORMAT_ASS = "ass";
+    public static final String FORMAT_SSA = "ssa";
+    public static final String FORMAT_SCC = "scc";
+    public static final String FORMAT_SRT = "srt";
+    public static final String FORMAT_STL = "stl";
+    public static final String FORMAT_XML = "xml";
+    public static final String FORMAT_TTML = "ttml";
+    public static final String FORMAT_DFXP = "dfxp";
 
-	/**
-	 * This methods receives the path to a file, parses it, and returns a TimedTextObject
-	 *
-	 * @param fileName  String that contains the path to the file
-	 * @param isCharset the Charset to use when reading the InputStream
-	 * @return TimedTextObject representing the parsed file
-	 * @throws IOException when having trouble reading the file from the given path
-	 */
-	public abstract Subtitle parse(String fileName, InputStream is, Charset isCharset)
-			throws IOException, FatalParsingException;
+    private static final Map<String, Class<? extends Format>> sFormatsTable;
+    public static final Set<String> SUPPORT_FORMATS;
 
-	/**
-	 * This method transforms a given TimedTextObject into a formated subtitle file
-	 *
-	 * @param tto the object to transform into a file
-	 * @return NULL if the given TimedTextObject has not been built first,
-	 * or String[] where each String is at least a line, if size is 2, then the file has at least two lines.
-	 * or byte[] in case the file is a binary (as is the case of STL format)
-	 */
-	public abstract Object toFile(Subtitle tto);
+    static {
+        sFormatsTable = new ArrayMap<>();
+        sFormatsTable.put(FORMAT_ASS, ASSFormat.class);
+        sFormatsTable.put(FORMAT_SSA, ASSFormat.class);
+        sFormatsTable.put(FORMAT_SCC, SCCFormat.class);
+        sFormatsTable.put(FORMAT_SRT, SRTFormat.class);
+        sFormatsTable.put(FORMAT_STL, STLFormat.class);
+        sFormatsTable.put(FORMAT_XML, XMLFormat.class);
+        sFormatsTable.put(FORMAT_TTML, XMLFormat.class);
+        sFormatsTable.put(FORMAT_DFXP, XMLFormat.class);
+        SUPPORT_FORMATS = Collections.unmodifiableSet(sFormatsTable.keySet());
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static Format forName(String name) {
+        Class<? extends Format> type = sFormatsTable.get(name.toLowerCase());
+        Format format = null;
+        if (type != null) {
+            try {
+                format = type.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return format;
+    }
+
+    /**
+     * This methods receives the path to a file, parses it, and returns a TimedTextObject
+     *
+     * @param fileName String that contains the path to the file
+     * @return TimedTextObject representing the parsed file
+     * @throws IOException when having trouble reading the file from the given path
+     */
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public final Subtitle parse(String fileName, InputStream input)
+            throws IOException, FormatException {
+        return parse(fileName, input, Charset.defaultCharset());
+    }
+
+    /**
+     * This methods receives the path to a file, parses it, and returns a TimedTextObject
+     *
+     * @param fileName String that contains the path to the file
+     * @param charset  the Charset to use when reading the InputStream
+     * @return TimedTextObject representing the parsed file
+     * @throws IOException when having trouble reading the file from the given path
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract Subtitle parse(String fileName, InputStream input, Charset charset)
+            throws IOException, FormatException;
+
+    /**
+     * This method transforms a given TimedTextObject into a formated subtitle file
+     *
+     * @param tto the object to transform into a file
+     * @return NULL if the given TimedTextObject has not been built first,
+     * or String[] where each String is at least a line, if size is 2, then the file has at least two lines.
+     * or byte[] in case the file is a binary (as is the case of STL format)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract Object transformation(Subtitle tto);
+
 }

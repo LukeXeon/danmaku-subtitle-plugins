@@ -45,7 +45,7 @@ public class STLFormat extends Format {
 		this.frameRate = Float.toString(frameRate);
 	}
 
-	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws FatalParsingException {
+	public Subtitle parse(String fileName, InputStream input, Charset charset) throws FormatException {
 
 		Subtitle tto = new Subtitle();
 		tto.fileName = fileName;
@@ -61,11 +61,11 @@ public class STLFormat extends Format {
 
 			int bytesRead;
 			//the GSI block is loaded
-			bytesRead = is.read(gsiBlock);
+			bytesRead = input.read(gsiBlock);
 			if (bytesRead < 1024)
 				//the file must contain at least a GSI block and a TTI block
 				//this is a fatal parsing error.
-				throw new FatalParsingException("The file must contain at least a GSI block");
+				throw new FormatException("The file must contain at least a GSI block");
 			//CPC : code page number 0..2
 			//DFC : disk format code 3..10
 			//save the number of frames per second
@@ -127,7 +127,7 @@ public class STLFormat extends Format {
 			//the TTI blocks are read
 			for (int i = 0; i < numberOfTTIBlocks; i++) {
 				//the TTI block is loaded
-				bytesRead = is.read(ttiBlock);
+				bytesRead = input.read(ttiBlock);
 				if (bytesRead < 128) {
 					//unexpected end of file
 					tto.warnings += "Unexpected end of file, " + i + " blocks read, expecting " + numberOfTTIBlocks + " blocks in total.\n\n";
@@ -190,7 +190,7 @@ public class STLFormat extends Format {
 				tto.warnings += "Number of parsed subtitles (" + subtitleNumber + ") different from expected number of subtitles (" + numberOfSubtitles + ").\n\n";
 
 			//we close the reader
-			is.close();
+			input.close();
 
 
 			tto.cleanUnusedStyles();
@@ -198,7 +198,7 @@ public class STLFormat extends Format {
 		} catch (Exception e) {
 			//format error
 			e.printStackTrace();
-			throw new FatalParsingException("Format error in the file, migth be due to corrupt data.\n" + e.getMessage());
+			throw new FormatException("Format error in the file, migth be due to corrupt data.\n" + e.getMessage());
 		}
 
 		tto.built = true;
@@ -206,7 +206,7 @@ public class STLFormat extends Format {
 	}
 
 
-	public byte[] toFile(Subtitle tto) {
+	public byte[] transformation(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)

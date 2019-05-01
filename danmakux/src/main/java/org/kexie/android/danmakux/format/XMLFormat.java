@@ -51,7 +51,7 @@ public class XMLFormat extends Format {
 		System.setProperty("org.xml.sax.driver", "org.xmlpull.v1.sax2.Driver");
 	}
 
-	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws IOException, FatalParsingException {
+	public Subtitle parse(String fileName, InputStream input, Charset charset) throws IOException, FormatException {
 
 		Subtitle tto = new Subtitle();
 		tto.fileName = fileName;
@@ -60,7 +60,7 @@ public class XMLFormat extends Format {
 		DocumentBuilder dBuilder;
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
-			Document doc = dBuilder.parse(new InputSource(new InputStreamReader(is, isCharset)));
+			Document doc = dBuilder.parse(new InputSource(new InputStreamReader(input, charset)));
 			doc.getDocumentElement().normalize();
 
 			//we recover the metadata
@@ -246,7 +246,7 @@ public class XMLFormat extends Format {
 		} catch (Exception e) {
 			e.printStackTrace();
 			//this could be a fatal error...
-			throw new FatalParsingException("Error during parsing: " + e.getMessage());
+			throw new FormatException("Error during parsing: " + e.getMessage());
 		}
 
 
@@ -255,7 +255,7 @@ public class XMLFormat extends Format {
 	}
 
 
-	public String[] toFile(Subtitle tto) {
+	public String[] transformation(Subtitle tto) {
 
 		//first we check if the TimedTextObject had been built, otherwise...
 		if (!tto.built)

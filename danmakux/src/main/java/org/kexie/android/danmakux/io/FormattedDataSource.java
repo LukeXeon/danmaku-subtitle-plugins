@@ -1,9 +1,6 @@
 package org.kexie.android.danmakux.io;
 
-import android.support.annotation.RestrictTo;
-
-import org.kexie.android.danmakux.converter.FormatType;
-import org.kexie.android.danmakux.converter.SubtitleParserFactory;
+import org.kexie.android.danmakux.format.Format;
 import org.kexie.android.danmakux.utils.FileUtils;
 
 import java.io.File;
@@ -18,8 +15,7 @@ public final class FormattedDataSource implements IDataSource<InputStream> {
     private final String format;
     private final FileInputStream input;
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    private FormattedDataSource(@FormatType String format, FileInputStream input) {
+    private FormattedDataSource(String format, FileInputStream input) {
         this.format = format;
         this.input = input;
     }
@@ -30,7 +26,7 @@ public final class FormattedDataSource implements IDataSource<InputStream> {
         FileNotFoundException exception = null;
         if (file != null && file.isFile()) {
             String format = FileUtils.getFileExtension(file);
-            if (SubtitleParserFactory.SUPPORT_FORMATS.contains(format)) {
+            if (Format.SUPPORT_FORMATS.contains(format)) {
                 try {
                     FileInputStream inputStream = new FileInputStream(file);
                     result = new FormattedDataSource(format, inputStream);

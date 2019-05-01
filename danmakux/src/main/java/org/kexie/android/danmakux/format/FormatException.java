@@ -7,13 +7,13 @@ package org.kexie.android.danmakux.format;
  *
  */
 
-public class FatalParsingException extends Exception {
+public class FormatException extends Exception {
 
 	private static final long serialVersionUID = 6798827566637277804L;
 
-	private String parsingError;
+	private final String parsingError;
 
-	FatalParsingException(String parsingError) {
+	FormatException(String parsingError) {
 		super(parsingError);
 		this.parsingError = parsingError;
 	}

@@ -39,7 +39,7 @@ import java.util.ArrayList;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ASSFormat extends Format {
 
-	public Subtitle parse(String fileName, InputStream is, Charset isCharset) throws IOException {
+	public Subtitle parse(String fileName, InputStream input, Charset charset) throws IOException {
 
 		Subtitle tto = new Subtitle();
 		tto.fileName = fileName;
@@ -58,7 +58,7 @@ public class ASSFormat extends Format {
 		String[] dialogueFormat;
 
 		//first lets load the file
-		InputStreamReader in = new InputStreamReader(is, isCharset);
+		InputStreamReader in = new InputStreamReader(input, charset);
 		BufferedReader br = new BufferedReader(in);
 
 		String line;
@@ -195,7 +195,7 @@ public class ASSFormat extends Format {
 			tto.warnings += "unexpected end of file, maybe last caption is not complete.\n\n";
 		} finally {
 			//we close the reader
-			is.close();
+			input.close();
 		}
 
 		tto.built = true;
@@ -203,7 +203,7 @@ public class ASSFormat extends Format {
 	}
 
 
-	public String[] toFile(Subtitle tto) {
+	public String[] transformation(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)

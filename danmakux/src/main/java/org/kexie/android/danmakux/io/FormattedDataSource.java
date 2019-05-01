@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+import master.flame.danmaku.danmaku.loader.IllegalDataException;
 import master.flame.danmaku.danmaku.parser.IDataSource;
 import master.flame.danmaku.danmaku.util.IOUtils;
 
@@ -20,10 +21,10 @@ public final class FormattedDataSource implements IDataSource<InputStream> {
         this.input = input;
     }
 
-    public static FormattedDataSource load(File file)
-            throws FileNotFoundException {
+    public static FormattedDataSource loadFile(File file)
+            throws IllegalDataException {
         FormattedDataSource result = null;
-        FileNotFoundException exception = null;
+        IllegalDataException exception = null;
         if (file != null && file.isFile()) {
             String format = FileUtils.getFileExtension(file);
             if (Format.SUPPORT_FORMATS.contains(format)) {
@@ -31,12 +32,12 @@ public final class FormattedDataSource implements IDataSource<InputStream> {
                     FileInputStream inputStream = new FileInputStream(file);
                     result = new FormattedDataSource(format, inputStream);
                 } catch (FileNotFoundException e) {
-                    exception = e;
+                    exception = new IllegalDataException(e);
                 }
             }
         }
         if (result == null) {
-            throw (exception == null ? new FileNotFoundException() : exception);
+            throw (exception == null ? new IllegalDataException() : exception);
         }
         return result;
     }

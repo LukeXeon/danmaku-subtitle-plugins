@@ -51,6 +51,10 @@ public abstract class Format {
     public static final String FORMAT_DFXP = "dfxp";
 
     private static final Map<String, Class<? extends Format>> sFormatsTable;
+
+    /**
+     * 所有支持的格式
+     */
     public static final Set<String> SUPPORT_FORMATS;
 
     static {
@@ -115,6 +119,6 @@ public abstract class Format {
      * or byte[] in case the file is a binary (as is the case of STL format)
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract Object transformation(Subtitle tto);
+    public abstract Object transform(Subtitle tto);
 
 }

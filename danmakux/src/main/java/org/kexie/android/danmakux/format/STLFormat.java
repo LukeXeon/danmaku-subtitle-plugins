@@ -206,7 +206,7 @@ public class STLFormat extends Format {
 	}
 
 
-	public byte[] transformation(Subtitle tto) {
+	public byte[] transform(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)

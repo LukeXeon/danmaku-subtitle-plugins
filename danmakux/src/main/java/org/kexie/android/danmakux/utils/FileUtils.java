@@ -19,6 +19,7 @@ public final class FileUtils {
         throw new AssertionError();
     }
 
+
     public static String getFileNameNoExtension(File file) {
         if (file == null) return "";
         return getFileNameNoExtension(file.getPath());
@@ -74,6 +75,11 @@ public final class FileUtils {
         return files.isEmpty() ? Collections.emptyList() : files;
     }
 
+    /**
+     * 列出于文件名相同的字幕文件
+     * @param video 视频文件
+     * @return 返回符合的文件列表
+     */
     public static List<File> getAttachedSubtitles(File video) {
         List<File> list = listSubtitles(video.getParentFile());
         List<File> result = new LinkedList<>();
@@ -86,6 +92,11 @@ public final class FileUtils {
         return result.isEmpty() ? Collections.emptyList() : result;
     }
 
+    /**
+     * 列出于文件名相同的字幕文件
+     * @param video 视频文件
+     * @return 返回符合的文件列表
+     */
     public static List<File> getAttachedSubtitles(String video) {
         return getAttachedSubtitles(new File(video));
     }

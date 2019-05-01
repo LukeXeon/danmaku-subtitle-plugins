@@ -73,6 +73,7 @@ final class DanmakuStyleContext {
         BaseDanmaku item = context.mDanmakuFactory
                 .createDanmaku(type, context);
         item.padding = 20;
+        item.priority = 1;
         return item;
     }
 
@@ -94,13 +95,23 @@ final class DanmakuStyleContext {
                 && style.fontSize != null
                 ? Float.parseFloat(style.fontSize)
                 : MID_FONT_SIZE);
-        adaptText(item, text);
+        adaptText(item, lines);
         item.textSize = adaptScreen(maxLength, textSize);
         adaptColor(item, style);
     }
 
-    private static void adaptText(BaseDanmaku item, String text) {
-        item.text = text.replaceAll("\\<br[ ]*/\\>", BaseDanmaku.DANMAKU_BR_CHAR);
+    private static void adaptText(BaseDanmaku item, String[] lines) {
+        if (lines.length == 1) {
+            item.text = lines[0];
+        } else if (lines.length > 1) {
+            StringBuilder builder = new StringBuilder(lines[0].length() * lines.length);
+            for (int i = 0; i < lines.length - 1; ++i) {
+                builder.append(lines[i])
+                        .append(BaseDanmaku.DANMAKU_BR_CHAR);
+            }
+            builder.append(lines[lines.length - 1]);
+            item.text = builder;
+        }
     }
 
     //适配颜色

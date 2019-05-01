@@ -54,7 +54,7 @@ public class SCCFormat extends Format {
 		boolean italics = false;
 		String color = null;
 
-		//first lets load the file
+		//first lets loadFile the file
 		BufferedReader br = new BufferedReader(new InputStreamReader(input, charset));
 
 		//the file name is saved
@@ -377,7 +377,7 @@ public class SCCFormat extends Format {
 	}
 
 
-	public String[] transformation(Subtitle tto) {
+	public String[] transform(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)

@@ -57,7 +57,7 @@ public class ASSFormat extends Format {
 		String[] styleFormat;
 		String[] dialogueFormat;
 
-		//first lets load the file
+		//first lets loadFile the file
 		InputStreamReader in = new InputStreamReader(input, charset);
 		BufferedReader br = new BufferedReader(in);
 
@@ -203,7 +203,7 @@ public class ASSFormat extends Format {
 	}
 
 
-	public String[] transformation(Subtitle tto) {
+	public String[] transform(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)

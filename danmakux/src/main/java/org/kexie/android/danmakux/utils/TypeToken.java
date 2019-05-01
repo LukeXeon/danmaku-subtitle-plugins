@@ -10,8 +10,7 @@ import java.util.Objects;
  * 方便获取泛型类型的工具类
  * 你可以像这样使用
  * <code>
- *     new TypeToken<IDataSource<InputStream>>() {
- *                 }.getType()
+ *     new TypeToken<IDataSource<InputStream>>() {}.getType()
  * </code>
  * @param <T> 泛型类型
  * @author Luke

@@ -27,6 +27,7 @@ import android.widget.SeekBar;
 import android.widget.VideoView;
 
 import org.kexie.android.danmakux.converter.SubtitleParserFactory;
+import org.kexie.android.danmakux.format.Format;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -150,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
-        BaseDanmakuParser parser = SubtitleParserFactory.forFormat(SubtitleParserFactory.FORMAT_ASS);
+        BaseDanmakuParser parser = SubtitleParserFactory.forFormat(Format.FORMAT_ASS);
         IDataSource<?> dataSource = loader.getDataSource();
         parser.load(dataSource);
         return parser;

@@ -255,7 +255,7 @@ public class XMLFormat extends Format {
 	}
 
 
-	public String[] transformation(Subtitle tto) {
+	public String[] transform(Subtitle tto) {
 
 		//first we check if the TimedTextObject had been built, otherwise...
 		if (!tto.built)

@@ -49,7 +49,7 @@ public class SRTFormat extends Format {
 		int captionNumber = 1;
 		boolean allGood;
 
-		//first lets load the file
+		//first lets loadFile the file
 		InputStreamReader in = new InputStreamReader(input, charset);
 		BufferedReader br = new BufferedReader(in);
 
@@ -136,7 +136,7 @@ public class SRTFormat extends Format {
 	}
 
 
-	public String[] transformation(Subtitle tto) {
+	public String[] transform(Subtitle tto) {
 
 		//first we check if the TimedText had been built, otherwise...
 		if (!tto.built)

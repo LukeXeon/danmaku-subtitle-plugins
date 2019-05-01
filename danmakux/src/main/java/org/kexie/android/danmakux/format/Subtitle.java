@@ -93,7 +93,7 @@ public class Subtitle {
 	 * @return an array of strings where each String represents a line
 	 */
 	public String[] toSRT() {
-		return new SRTFormat().transformation(this);
+		return new SRTFormat().transform(this);
 	}
 
 
@@ -103,14 +103,14 @@ public class Subtitle {
 	 * @return an array of strings where each String represents a line
 	 */
 	public String[] toASS() {
-		return new ASSFormat().transformation(this);
+		return new ASSFormat().transform(this);
 	}
 
 	/**
 	 * Method to generate the .STL file
 	 */
 	public byte[] toSTL() {
-		return new STLFormat().transformation(this);
+		return new STLFormat().transform(this);
 	}
 
 	/**
@@ -119,7 +119,7 @@ public class Subtitle {
 	 * @return
 	 */
 	public String[] toSCC() {
-		return new SCCFormat().transformation(this);
+		return new SCCFormat().transform(this);
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class Subtitle {
 	 * @return
 	 */
 	public String[] toXML() {
-		return new XMLFormat().transformation(this);
+		return new XMLFormat().transform(this);
 	}
 
 	/*

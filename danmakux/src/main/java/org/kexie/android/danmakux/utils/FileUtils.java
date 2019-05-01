@@ -8,7 +8,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
-//文件工具类
+/**
+ * 文件工具类
+ * @author Luke
+ */
 @SuppressWarnings("WeakerAccess")
 public final class FileUtils {
 

@@ -1,6 +1,5 @@
 package org.kexie.android.danmakux.converter;
 
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -14,7 +13,6 @@ import org.mozilla.universalchardet.UniversalDetector;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Objects;
@@ -43,8 +41,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
     //检测字符集
     private static Charset bestGuessedCharset(InputStream input) throws IOException {
         input.mark(0);
-        byte[] buffer = new byte[1024];
-        ByteBuffer.allocateDirect(1024);
+        byte[] buffer = new byte[4096];
         UniversalDetector detector = new UniversalDetector(null);
         int length;
         while ((length = input.read(buffer)) > 0 && !detector.isDone()) {
@@ -63,7 +60,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
                 && IDataSource.class.isAssignableFrom(checkType)
                 && !Objects.equals(bootClassLoader, checkType.getClassLoader())) {
             for (Type type : checkType.getGenericInterfaces()) {
-                if (deepEqualsType(type, requestType)) {
+                if (TypeToken.deepEqualsType(type, requestType)) {
                     return true;
                 }
             }
@@ -72,17 +69,8 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
         return false;
     }
 
-    //把所有可能的手段都用上
-    private static boolean deepEqualsType(Type type1, Type type2) {
-        return Objects.deepEquals(type1, type2)
-                || Objects.equals(type1.toString(), type2.toString())
-                || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
-                && Objects.equals(type1.getTypeName(), type2.getTypeName()));
-    }
-
     /**
-     * 获取输出,使用{@link Jdk18BufferedInputStream}包装
-     * 低版本的{@link java.io.BufferedInputStream}可能有问题
+     * 获取输出,使用{@link java.io.BufferedInputStream}包装
      */
     @SuppressWarnings("unchecked")
     private InputStream getInput() {
@@ -96,7 +84,7 @@ final class SubtitleDanmakuParser extends BaseDanmakuParser {
             return null;
         }
         IDataSource<InputStream> dataSource = (IDataSource<InputStream>) source;
-        return new Jdk18BufferedInputStream(dataSource.data());
+        return Jdk18BufferedInputStream.newInstance(dataSource.data());
     }
 
     @Override

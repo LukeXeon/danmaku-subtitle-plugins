@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -12,7 +12,7 @@ public class Time {
 	 * @param format supported formats: "hh:mm:ss,ms", "h:mm:ss.cs" and "h:m:s:f/fps"
 	 * @param value  string in the correct format
 	 */
-	protected Time(String format, String value) {
+	public Time(String format, String value) {
 		if (format.equalsIgnoreCase("hh:mm:ss,ms")) {
 			// this type of format:  01:02:22,501 (used in .SRT)
 			int h, m, s, ms;
@@ -58,7 +58,7 @@ public class Time {
 	 * @param format supported formats: "hh:mm:ss,ms", "h:mm:ss.cs" and "hhmmssff/fps"
 	 * @return formatted time in a string
 	 */
-	String getTime(String format) {
+	public String getTime(String format) {
 		//we use string builder for efficiency
 		StringBuilder time = new StringBuilder();
 		String aux;

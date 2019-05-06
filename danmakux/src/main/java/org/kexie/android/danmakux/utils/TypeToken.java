@@ -50,4 +50,5 @@ public abstract class TypeToken<T> {
                 || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N
                 && Objects.equals(type1.getTypeName(), type2.getTypeName()));
     }
+
 }

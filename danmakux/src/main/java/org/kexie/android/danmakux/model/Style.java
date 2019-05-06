@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
@@ -15,7 +15,7 @@ public class Style {
 	 *
 	 * @param styleName = identifier of this style
 	 */
-	protected Style(String styleName) {
+	public Style(String styleName) {
 		this.id = styleName;
 	}
 
@@ -25,7 +25,7 @@ public class Style {
 	 * @param styleName
 	 * @param style
 	 */
-	protected Style(String styleName, Style style) {
+	public Style(String styleName, Style style) {
 		this.id = styleName;
 		this.font = style.font;
 		this.fontSize = style.fontSize;
@@ -62,7 +62,7 @@ public class Style {
 	 * @param value  color string
 	 * @return
 	 */
-	static String getRGBAValue(String format, String value) {
+	public static String getRGBAValue(String format, String value) {
 		String color = "";
 		if (format.equalsIgnoreCase("name")) {
 			//standard color format from W3C
@@ -161,7 +161,7 @@ public class Style {
 		return color;
 	}
 
-	static String defaultID() {
+	public static String defaultID() {
 		return "default" + styleCounter.getAndAdd(1);
 	}
 

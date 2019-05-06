@@ -2,6 +2,11 @@ package org.kexie.android.danmakux.format;
 
 import android.support.annotation.RestrictTo;
 
+import org.kexie.android.danmakux.model.Section;
+import org.kexie.android.danmakux.model.Style;
+import org.kexie.android.danmakux.model.Subtitle;
+import org.kexie.android.danmakux.model.Time;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

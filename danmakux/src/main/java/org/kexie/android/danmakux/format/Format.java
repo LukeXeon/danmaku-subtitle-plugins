@@ -3,6 +3,8 @@ package org.kexie.android.danmakux.format;
 import android.support.annotation.RestrictTo;
 import android.util.ArrayMap;
 
+import org.kexie.android.danmakux.model.Subtitle;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;

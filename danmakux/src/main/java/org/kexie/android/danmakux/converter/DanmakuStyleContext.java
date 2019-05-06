@@ -3,8 +3,8 @@ package org.kexie.android.danmakux.converter;
 import android.graphics.Color;
 import android.text.TextUtils;
 
-import org.kexie.android.danmakux.format.Section;
-import org.kexie.android.danmakux.format.Style;
+import org.kexie.android.danmakux.model.Section;
+import org.kexie.android.danmakux.model.Style;
 
 import java.util.Collection;
 

@@ -1,6 +1,12 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.model;
 
 import android.support.annotation.RestrictTo;
+
+import org.kexie.android.danmakux.format.ASSFormat;
+import org.kexie.android.danmakux.format.SCCFormat;
+import org.kexie.android.danmakux.format.SRTFormat;
+import org.kexie.android.danmakux.format.STLFormat;
+import org.kexie.android.danmakux.format.XMLFormat;
 
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -72,7 +78,7 @@ public class Subtitle {
 	/**
 	 * Protected constructor so it can't be created from outside
 	 */
-	protected Subtitle() {
+	public Subtitle() {
 
 		styles = new HashMap<>();
 		captions = new TreeMap<>();
@@ -141,7 +147,7 @@ public class Subtitle {
 	 * This might come useful when default styles get created and cover too much.
 	 * It require a unique iteration through all captions.
 	 */
-	protected void cleanUnusedStyles() {
+	public void cleanUnusedStyles() {
 		//here all used styles will be stored
 		Hashtable<String, Style> usedStyles = new Hashtable<>();
 		//we iterate over the captions

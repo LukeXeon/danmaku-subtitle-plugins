@@ -1,4 +1,4 @@
-package org.kexie.android.danmakux.format;
+package org.kexie.android.danmakux.model;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;

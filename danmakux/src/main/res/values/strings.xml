@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">danmakux</string>
+    <declare-styleable name="LyricView">
+        <attr format="color" name="selectedColor"/>
+        <attr format="color" name="normalColor"/>
+        <attr format="dimension" name="bigTextSize"/>
+        <attr format="dimension" name="smallTextSize"/>
+        <attr format="dimension" name="lineHeight"/>
+    </declare-styleable>
 </resources>

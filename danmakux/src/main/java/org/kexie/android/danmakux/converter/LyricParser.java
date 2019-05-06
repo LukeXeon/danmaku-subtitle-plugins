@@ -25,7 +25,7 @@ public final class LyricParser {
     private static final Lyric LYRIC_HAS_ERROR = new Lyric(0, "歌词加载出错");
 
     public static List<Lyric> loadFile(File file) {
-        if (!file.exists() || file.isFile()) {
+        if (!file.exists() || !file.isFile()) {
             return Collections.singletonList(LYRIC_NO_FOUND);
         }
         InputStream input = null;

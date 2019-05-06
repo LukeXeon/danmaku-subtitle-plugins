@@ -12,7 +12,7 @@ public final class Chardet {
     }
 
     public static Charset bestGuess(InputStream input) throws IOException {
-        if (input.markSupported()) {
+        if (!input.markSupported()) {
             throw new IOException();
         }
         input.mark(0);
